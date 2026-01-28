@@ -1,5 +1,71 @@
 # Changelog
 
+## v0.16.0-jc (Development Branch)
+
+_Community contribution by JC_
+
+### ✨ Features
+
+- **Frontmatter Tag Filtering System**
+  - Extract tags from YAML frontmatter in markdown files
+  - Collapsible tag selector UI with chip-based interface
+  - Filter file tree by multiple tags simultaneously
+  - localStorage persistence for selected tags
+  - Real-time tag scanning from file tree
+
+- **Resizable File Tree Pane**
+  - Drag handle for smooth pane resizing
+  - Width constraints with localStorage persistence
+  - Visual feedback during resize
+  - Responsive to window size changes
+
+- **File Starring/Bookmarking**
+  - Star favorite files for quick access
+  - Persistent across sessions with localStorage
+  - Auto-cleanup of non-existent starred files
+  - Visual star indicators in file tree
+
+- **Enhanced File Sorting**
+  - Sort by file name (A→Z)
+  - Sort by modification time (oldest/newest)
+  - Sort by creation time (oldest/newest)
+  - Persistent sort preference
+
+- **Auto Port Selection**
+  - Automatically find available port if default (8521) is in use
+  - Scans up to 100 ports for availability
+  - Clear user notification when using alternative port
+
+- **Dot Directory Support**
+  - Include dot-prefixed directories in file tree
+  - Configurable filtering options
+
+- **Sticky Outline Header**
+  - Outline header remains visible while scrolling
+  - Improved navigation in long documents
+
+- **File Name Wrapping**
+  - Long file names wrap properly in narrow panes
+  - Better readability in compact layouts
+
+### 🐛 Bug Fixes
+
+- Fix package.json author format to use proper npm schema
+- Fix deprecated TypeScript moduleResolution config
+- Fix browser request errors for .well-known paths
+- Improve alignment between files and directories in tree view
+
+### 📝 Documentation
+
+- Fix markdown formatting in CONTRIBUTING.md
+- Add comprehensive feature documentation
+
+### 🛠️ Chores
+
+- Add .markdownlintignore for auto-generated files
+- Fix code style issues (trailing whitespace)
+- Enhanced code quality standards
+
 ## v0.14.0
 
 ### ✨ Features

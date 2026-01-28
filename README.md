@@ -18,6 +18,25 @@
   <img src="docs/images/screen_animation.gif" width="640" alt="mdts demo">
 </p>
 
+## 🆕 What's New (by JC)
+
+Launching [v0.16.0-jc](CHANGELOG.md#v0160-jc-development-branch) with powerful new features:
+
+### 🎯 Major Features
+- **🏷️ Tag Filtering** - Filter files by YAML frontmatter tags with elegant chip UI
+- **📐 Resizable Panes** - Drag-and-drop resizing for the file tree panel
+- **⭐ File Bookmarking** - Star your favorite files for quick access
+- **🔄 Smart Sorting** - Sort by name, modification time, or creation time
+- **🚪 Auto Port Selection** - Never worry about port conflicts again
+
+### ✨ UI Enhancements
+- Sticky outline headers for better long-document navigation
+- Improved file name wrapping in compact views
+- Support for dot-prefixed directories
+- Cleaner file tree interface
+
+See the full [CHANGELOG](CHANGELOG.md) for detailed release notes.
+
 ## 🔧 Features
 
 - ⚡ **Instant Markdown Preview** – Run and view in seconds  
