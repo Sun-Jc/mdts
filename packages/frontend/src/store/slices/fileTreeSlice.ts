@@ -4,7 +4,11 @@ import { fetchData } from '../../api';
 export interface FileTreeItem {
   path: string;
   status: string;
+  mtime?: number;
+  ctime?: number;
 }
+
+export type SortMode = 'name' | 'mtime' | 'ctime' | 'mtime_desc' | 'ctime_desc';
 
 interface FileTreeState {
   fileTree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[];
@@ -12,6 +16,7 @@ interface FileTreeState {
   searchQuery: string;
   expandedNodes: string[];
   mountedDirectoryPath: string;
+  sortMode: SortMode;
   loading: boolean;
   error: string | null;
 }
@@ -22,12 +27,14 @@ const initialState: FileTreeState = {
   searchQuery: '',
   expandedNodes: [],
   mountedDirectoryPath: '',
+  sortMode: 'name',
   loading: true,
   error: null,
 };
 
 const LOCAL_STORAGE_KEY_PREFIX = 'mdts_expanded_nodes_';
 const LOCAL_STORAGE_RECENT_PATHS_KEY = 'mdts_recent_paths';
+const LOCAL_STORAGE_SORT_MODE_KEY = 'mdts_sort_mode';
 const MAX_RECENT_PATHS = 10;
 
 const saveExpandedNodes = (path: string, nodes: string[]) => {
@@ -66,6 +73,24 @@ const loadExpandedNodes = (path: string): string[] => {
   }
 };
 
+const saveSortMode = (mode: SortMode) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_SORT_MODE_KEY, mode);
+  } catch (e) {
+    console.error('Failed to save sort mode to local storage', e);
+  }
+};
+
+const loadSortMode = (): SortMode => {
+  try {
+    const storedMode = localStorage.getItem(LOCAL_STORAGE_SORT_MODE_KEY);
+    return (storedMode as SortMode) || 'name';
+  } catch (e) {
+    console.error('Failed to load sort mode from local storage', e);
+    return 'name';
+  }
+};
+
 const filterTree = (
   tree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[],
   searchQuery: string
@@ -97,11 +122,13 @@ const filterTree = (
 
 export const fetchFileTree = createAsyncThunk(
   'fileTree/fetchFileTree',
-  async () => {
+  async (_, { getState }) => {
+    const state = getState() as any;
+    const sortMode = state.fileTree?.sortMode || 'name';
     const data = await fetchData<{
       fileTree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[];
       mountedDirectoryPath: string;
-    }>('/api/filetree', 'json');
+    }>(`/api/filetree?sort=${sortMode}`, 'json');
     return { fileTree: data?.fileTree || [], mountedDirectoryPath: data?.mountedDirectoryPath };
   }
 );
@@ -113,6 +140,10 @@ const fileTreeSlice = createSlice({
     setSearchQuery: (state, action: { payload: string }) => {
       state.searchQuery = action.payload;
       state.filteredFileTree = filterTree(state.fileTree, action.payload);
+    },
+    setSortMode: (state, action: { payload: SortMode }) => {
+      state.sortMode = action.payload;
+      saveSortMode(action.payload);
     },
     toggleNode: (state, action: { payload: string }) => {
       const path = action.payload;
@@ -163,6 +194,7 @@ const fileTreeSlice = createSlice({
         state.mountedDirectoryPath = action.payload.mountedDirectoryPath;
         state.filteredFileTree = filterTree(action.payload.fileTree, state.searchQuery);
         state.expandedNodes = loadExpandedNodes(action.payload.mountedDirectoryPath);
+        state.sortMode = loadSortMode();
       })
       .addCase(fetchFileTree.rejected, (state, action) => {
         state.loading = false;
@@ -242,6 +274,7 @@ export const selectFilteredFileTree = (
 
 export const {
   setSearchQuery,
+  setSortMode,
   toggleNode,
   setExpandedNodes,
   expandAllNodes,

@@ -127,5 +127,118 @@ describe('filetree.ts', () => {
         { '.github': [{ path: '.github/workflow.md', status: ' ' }] }
       );
     });
+
+    describe('sorting functionality', () => {
+      beforeEach(() => {
+        (fs.readdirSync as jest.Mock)
+          .mockReturnValueOnce([ // For root
+            mockDirent('z-file.md', false),
+            mockDirent('a-file.md', false),
+            mockDirent('m-file.md', false),
+          ]);
+
+        // Mock stats with different modification times
+        (fs.statSync as jest.Mock)
+          .mockImplementationOnce(() => ({ // z-file.md: oldest
+            mtimeMs: 1000,
+            birthtimeMs: 2000,
+            ctimeMs: 2000,
+          }))
+          .mockImplementationOnce(() => ({ // a-file.md: newest
+            mtimeMs: 3000,
+            birthtimeMs: 1000,
+            ctimeMs: 1000,
+          }))
+          .mockImplementationOnce(() => ({ // m-file.md: middle
+            mtimeMs: 2000,
+            birthtimeMs: 3000,
+            ctimeMs: 3000,
+          }));
+      });
+
+      it('should sort files alphabetically by default (name)', async () => {
+        const response = await request(app).get('/api/filetree?sort=name');
+        expect(response.statusCode).toBe(200);
+        expect(response.body.fileTree).toEqual([
+          expect.objectContaining({ path: 'a-file.md' }),
+          expect.objectContaining({ path: 'm-file.md' }),
+          expect.objectContaining({ path: 'z-file.md' }),
+        ]);
+      });
+
+      it('should sort files by modification time ascending (oldest first)', async () => {
+        const response = await request(app).get('/api/filetree?sort=mtime');
+        expect(response.statusCode).toBe(200);
+        // z-file (mtime 1000), m-file (mtime 2000), a-file (mtime 3000)
+        expect(response.body.fileTree[0]).toEqual(
+          expect.objectContaining({ path: 'z-file.md', mtime: 1000 })
+        );
+        expect(response.body.fileTree[1]).toEqual(
+          expect.objectContaining({ path: 'm-file.md', mtime: 2000 })
+        );
+        expect(response.body.fileTree[2]).toEqual(
+          expect.objectContaining({ path: 'a-file.md', mtime: 3000 })
+        );
+      });
+
+      it('should sort files by modification time descending (newest first)', async () => {
+        const response = await request(app).get('/api/filetree?sort=mtime_desc');
+        expect(response.statusCode).toBe(200);
+        // a-file (mtime 3000), m-file (mtime 2000), z-file (mtime 1000)
+        expect(response.body.fileTree[0]).toEqual(
+          expect.objectContaining({ path: 'a-file.md', mtime: 3000 })
+        );
+        expect(response.body.fileTree[1]).toEqual(
+          expect.objectContaining({ path: 'm-file.md', mtime: 2000 })
+        );
+        expect(response.body.fileTree[2]).toEqual(
+          expect.objectContaining({ path: 'z-file.md', mtime: 1000 })
+        );
+      });
+
+      it('should sort files by creation time ascending (oldest first)', async () => {
+        const response = await request(app).get('/api/filetree?sort=ctime');
+        expect(response.statusCode).toBe(200);
+        // a-file (ctime 1000), z-file (ctime 2000), m-file (ctime 3000)
+        expect(response.body.fileTree[0]).toEqual(
+          expect.objectContaining({ path: 'a-file.md', ctime: 1000 })
+        );
+        expect(response.body.fileTree[1]).toEqual(
+          expect.objectContaining({ path: 'z-file.md', ctime: 2000 })
+        );
+        expect(response.body.fileTree[2]).toEqual(
+          expect.objectContaining({ path: 'm-file.md', ctime: 3000 })
+        );
+      });
+
+      it('should sort files by creation time descending (newest first)', async () => {
+        const response = await request(app).get('/api/filetree?sort=ctime_desc');
+        expect(response.statusCode).toBe(200);
+        // m-file (ctime 3000), z-file (ctime 2000), a-file (ctime 1000)
+        expect(response.body.fileTree[0]).toEqual(
+          expect.objectContaining({ path: 'm-file.md', ctime: 3000 })
+        );
+        expect(response.body.fileTree[1]).toEqual(
+          expect.objectContaining({ path: 'z-file.md', ctime: 2000 })
+        );
+        expect(response.body.fileTree[2]).toEqual(
+          expect.objectContaining({ path: 'a-file.md', ctime: 1000 })
+        );
+      });
+
+      it('should include mtime and ctime in response', async () => {
+        const response = await request(app).get('/api/filetree');
+        expect(response.statusCode).toBe(200);
+        // All files should have mtime and ctime properties
+        response.body.fileTree.forEach((item: any) => {
+          if ('path' in item) {
+            expect(item).toHaveProperty('mtime');
+            expect(item).toHaveProperty('ctime');
+            expect(typeof item.mtime).toBe('number');
+            expect(typeof item.ctime).toBe('number');
+          }
+        });
+      });
+    });
   });
 });

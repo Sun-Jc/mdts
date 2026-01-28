@@ -1,18 +1,36 @@
 import React from 'react';
-import { Box, IconButton, Typography } from '@mui/material';
+import { Box, IconButton, Typography, Select, MenuItem } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore';
+import { SortMode } from '../../store/slices/fileTreeSlice';
 
 interface FileTreeHeaderProps {
   isOpen: boolean;
   onToggle: () => void;
   onExpandAllClick: () => void;
   onCollapseAll: () => void;
+  sortMode: SortMode;
+  onSortModeChange: (mode: SortMode) => void;
 }
 
-const FileTreeHeader: React.FC<FileTreeHeaderProps> = ({ isOpen, onToggle, onExpandAllClick, onCollapseAll }) => {
+const SORT_OPTIONS = [
+  { value: 'name' as SortMode, label: 'File name (A→Z)' },
+  { value: 'mtime' as SortMode, label: 'Modified (oldest)' },
+  { value: 'mtime_desc' as SortMode, label: 'Modified (newest)' },
+  { value: 'ctime' as SortMode, label: 'Created (oldest)' },
+  { value: 'ctime_desc' as SortMode, label: 'Created (newest)' },
+];
+
+const FileTreeHeader: React.FC<FileTreeHeaderProps> = ({
+  isOpen,
+  onToggle,
+  onExpandAllClick,
+  onCollapseAll,
+  sortMode,
+  onSortModeChange,
+}) => {
   return (
     <Box
       sx={{
@@ -25,10 +43,29 @@ const FileTreeHeader: React.FC<FileTreeHeaderProps> = ({ isOpen, onToggle, onExp
       }}
     >
       {isOpen && (
-        <Box sx={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-          <Typography variant="h6" gutterBottom sx={{ flex: 1, marginLeft: 1, marginBottom: 0 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, gap: 1 }}>
+          <Typography variant="h6" gutterBottom sx={{ flex: 1, marginBottom: 0 }}>
             File Tree
           </Typography>
+          <Select
+            value={sortMode}
+            onChange={(e) => onSortModeChange(e.target.value as SortMode)}
+            size="small"
+            sx={{
+              fontSize: '0.75rem',
+              height: '28px',
+              minWidth: '120px',
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: 'divider',
+              },
+            }}
+          >
+            {SORT_OPTIONS.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </Select>
           <IconButton onClick={onExpandAllClick} size="small" aria-label="expand all">
             <UnfoldMoreIcon />
           </IconButton>

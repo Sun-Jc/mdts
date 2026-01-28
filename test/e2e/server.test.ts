@@ -18,13 +18,13 @@ describe('Server E2E Tests', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual({
       fileTree: expect.arrayContaining([
-        { path: 'another.md', status: ' ' },
+        expect.objectContaining({ path: 'another.md', status: ' ' }),
         {
-          nested: [
-            { path: 'nested/nested.md', status: ' ' },
-          ],
+          nested: expect.arrayContaining([
+            expect.objectContaining({ path: 'nested/nested.md', status: ' ' }),
+          ]),
         },
-        { path: 'test.md', status: ' ' },
+        expect.objectContaining({ path: 'test.md', status: ' ' }),
       ]),
       mountedDirectoryPath: path.join(__dirname, '../fixtures/mountDirectory/content'),
     });

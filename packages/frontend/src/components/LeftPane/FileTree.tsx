@@ -5,6 +5,8 @@ import {
   expandAllNodes,
   fetchFileTree,
   FileTreeItem,
+  setSortMode,
+  SortMode,
   setExpandedNodes,
   setSearchQuery
 } from '../../store/slices/fileTreeSlice';
@@ -29,12 +31,13 @@ const FileTree: React.FC<FileTreeComponentProps> = ({ onFileSelect, isOpen, onTo
     loading,
     error,
     searchQuery,
-    expandedNodes
+    expandedNodes,
+    sortMode
   } = useSelector((state: RootState) => state.fileTree);
 
   useEffect(() => {
     dispatch(fetchFileTree());
-  }, [dispatch]);
+  }, [dispatch, sortMode]);
 
   const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     dispatch(setSearchQuery(event.target.value));
@@ -42,6 +45,10 @@ const FileTree: React.FC<FileTreeComponentProps> = ({ onFileSelect, isOpen, onTo
 
   const handleClearSearch = useCallback(() => {
     dispatch(setSearchQuery(''));
+  }, [dispatch]);
+
+  const handleSortModeChange = useCallback((mode: SortMode) => {
+    dispatch(setSortMode(mode));
   }, [dispatch]);
 
   const handleExpandAllClick = useCallback(() => {
@@ -101,6 +108,8 @@ const FileTree: React.FC<FileTreeComponentProps> = ({ onFileSelect, isOpen, onTo
         onToggle={onToggle}
         onExpandAllClick={handleExpandAllClick}
         onCollapseAll={handleCollapseAll}
+        sortMode={sortMode}
+        onSortModeChange={handleSortModeChange}
       />
       {isOpen && (
         <FileTreeSearch
