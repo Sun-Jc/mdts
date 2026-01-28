@@ -31,8 +31,15 @@ export const FileTreeItemView: React.FC<FileTreeItemViewProps> = ({ fileItem, on
       key={fileItem.path}
       itemId={fileItem.path}
       label={
-        <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%', gap: 1 }}>
-          <ArticleOutlined sx={{ mr: 0, mt: 0.5, fontSize: 'small', flexShrink: 0 }} />
+        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0 }} onClick={handleStarClick}>
+            {isStarred ? (
+              <Star sx={{ fontSize: '1.2rem', color: 'warning.main' }} />
+            ) : (
+              <StarOutline sx={{ fontSize: '1.2rem', color: 'action.disabled' }} />
+            )}
+          </Box>
+          <ArticleOutlined sx={{ fontSize: 'small', flexShrink: 0 }} />
           <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0, flex: 1 }}>
             <Typography 
               variant="body2" 
@@ -61,20 +68,6 @@ export const FileTreeItemView: React.FC<FileTreeItemViewProps> = ({ fileItem, on
               </Typography>
             )}
           </Box>
-          <IconButton
-            size="small"
-            onClick={handleStarClick}
-            sx={{ 
-              padding: '4px',
-              flexShrink: 0,
-              color: isStarred ? 'warning.main' : 'inherit',
-              '&:hover': {
-                backgroundColor: 'action.hover',
-              }
-            }}
-          >
-            {isStarred ? <Star sx={{ fontSize: '1rem' }} /> : <StarOutline sx={{ fontSize: '1rem' }} />}
-          </IconButton>
         </Box>
       }
       onClick={handleClick}
