@@ -48,7 +48,7 @@ const FileTreeTags: React.FC<FileTreeTagsProps> = ({ fileTree, selectedTags, onT
     <Box sx={{ px: 2, pb: 1 }}>
       <Box sx={{ 
         display: 'flex', 
-        alignItems: 'center',
+        alignItems: 'flex-start',
         gap: 0.5,
         minHeight: '32px'
       }}>
