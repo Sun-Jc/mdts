@@ -41,6 +41,7 @@ const LOCAL_STORAGE_KEY_PREFIX = 'mdts_expanded_nodes_';
 const LOCAL_STORAGE_RECENT_PATHS_KEY = 'mdts_recent_paths';
 const LOCAL_STORAGE_SORT_MODE_KEY = 'mdts_sort_mode';
 const LOCAL_STORAGE_STARRED_FILES_KEY = 'mdts_starred_files';
+const LOCAL_STORAGE_SELECTED_TAGS_KEY = 'mdts_selected_tags';
 const MAX_RECENT_PATHS = 10;
 
 const saveExpandedNodes = (path: string, nodes: string[]) => {
@@ -144,6 +145,24 @@ const cleanupStarredFiles = (starred: string[], existingPaths: string[]): string
   return starred.filter(starredPath => pathSet.has(starredPath));
 };
 
+const saveSelectedTags = (tags: string[]) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_SELECTED_TAGS_KEY, JSON.stringify(tags));
+  } catch (e) {
+    console.error('Failed to save selected tags to local storage', e);
+  }
+};
+
+const loadSelectedTags = (): string[] => {
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_SELECTED_TAGS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error('Failed to load selected tags from local storage', e);
+    return [];
+  }
+};
+
 const filterTree = (
   tree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[],
   searchQuery: string,
@@ -206,6 +225,7 @@ const fileTreeSlice = createSlice({
     setSelectedTags: (state, action: { payload: string[] }) => {
       state.selectedTags = action.payload;
       state.filteredFileTree = filterTree(state.fileTree, state.searchQuery, action.payload);
+      saveSelectedTags(action.payload);
     },
     toggleTag: (state, action: { payload: string }) => {
       const tag = action.payload;
@@ -216,6 +236,7 @@ const fileTreeSlice = createSlice({
         state.selectedTags.push(tag);
       }
       state.filteredFileTree = filterTree(state.fileTree, state.searchQuery, state.selectedTags);
+      saveSelectedTags(state.selectedTags);
     },
     setSortMode: (state, action: { payload: SortMode }) => {
       state.sortMode = action.payload;
@@ -278,9 +299,14 @@ const fileTreeSlice = createSlice({
         state.loading = false;
         state.fileTree = action.payload.fileTree;
         state.mountedDirectoryPath = action.payload.mountedDirectoryPath;
-        state.filteredFileTree = filterTree(action.payload.fileTree, state.searchQuery, state.selectedTags);
         state.expandedNodes = loadExpandedNodes(action.payload.mountedDirectoryPath);
         state.sortMode = loadSortMode();
+        
+        // Load selected tags
+        state.selectedTags = loadSelectedTags();
+        
+        // Apply filters with loaded tags
+        state.filteredFileTree = filterTree(action.payload.fileTree, state.searchQuery, state.selectedTags);
         
         // Load and cleanup starred files
         let starredFiles = loadStarredFiles();
