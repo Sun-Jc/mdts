@@ -1,5 +1,6 @@
 import express from 'express';
 import * as fs from 'fs';
+import * as net from 'net';
 import path from 'path';
 import { logger } from '../utils/logger';
 import { fileTreeRouter } from './routes/filetree';
@@ -8,16 +9,46 @@ import { getConfig, saveConfig } from './config';
 import { setupWatcher } from './watcher';
 import { plantumlRouter } from './routes/plantuml';
 
-export const serve = (directory: string, port: number, host: string): import('http').Server => {
+const MAX_PORT_ATTEMPTS = 100;
+
+export const findAvailablePort = async (startPort: number, host: string): Promise<number> => {
+  const isPortAvailable = (port: number): Promise<boolean> => {
+    return new Promise((resolve) => {
+      const server = net.createServer();
+      server.once('error', () => resolve(false));
+      server.once('listening', () => {
+        server.close();
+        resolve(true);
+      });
+      server.listen(port, host);
+    });
+  };
+
+  for (let port = startPort; port < startPort + MAX_PORT_ATTEMPTS; port++) {
+    if (await isPortAvailable(port)) {
+      return port;
+    }
+  }
+  
+  throw new Error(`No available port found in range ${startPort}-${startPort + MAX_PORT_ATTEMPTS - 1}`);
+};
+
+export const serve = async (directory: string, port: number, host: string): Promise<{ server: import('http').Server; port: number }> => {
+  const availablePort = await findAvailablePort(port, host);
+  
+  if (availablePort !== port) {
+    logger.log('Server', `⚠️  Port ${port} is in use, using port ${availablePort} instead`);
+  }
+  
   const app = createApp(directory);
-  const server = app.listen(port, host, () => {
+  const server = app.listen(availablePort, host, () => {
     logger.log('Server', `📁 Mounted directory: ${directory}`);
-    logger.log('Server', `🚀 Server listening at http://${host}:${port}`);
+    logger.log('Server', `🚀 Server listening at http://${host}:${availablePort}`);
   });
 
-  setupWatcher(directory, server, port);
+  setupWatcher(directory, server, availablePort);
 
-  return server;
+  return { server, port: availablePort };
 };
 
 export const createApp = (

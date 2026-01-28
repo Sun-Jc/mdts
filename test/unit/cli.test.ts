@@ -21,7 +21,7 @@ jest.mock('open', () => ({ default: jest.fn(() => Promise.resolve()) }));
 
 // Mock the 'serve' function to prevent actual server startup
 jest.mock('../../src/server/server', () => ({
-  serve: jest.fn(),
+  serve: jest.fn(() => Promise.resolve({ server: {}, port: 8521 })),
 }));
 
 jest.mock('../../src/utils/logger', () => ({
@@ -43,6 +43,9 @@ describe('cli', () => {
     cli = new CLI();
     originalArgv = process.argv;
     mockServe = serve as jest.Mock;
+    mockServe.mockImplementation((dir, port, host) => 
+      Promise.resolve({ server: {}, port })
+    );
     // Reset the mock result for existsSync before each test
     setExistsSyncResult(false); // Default to false for safety
     jest.clearAllMocks();

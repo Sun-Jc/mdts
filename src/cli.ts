@@ -23,7 +23,7 @@ export class CLI {
           .option('-s, --silent', 'Suppress server logs', false)
           .option('--no-open', 'Do not open the browser automatically')
           .argument('[directory]', 'Directory to serve', DEFAULT_DIRECTORY)
-          .action((directory, options) => {
+          .action(async (directory, options) => {
             logger.setSilent(options.silent);
 
             logger.showLogo();
@@ -31,18 +31,18 @@ export class CLI {
             logger.log('Announcement', '✨ Like it? Star it on GitHub: https://github.com/unhappychoice/mdts');
 
             logger.log('CLI', '⚙  Options: ' + JSON.stringify(options));
-            const port = parseInt(options.port, 10);
+            const requestedPort = parseInt(options.port, 10);
             const host = options.host;
             const absoluteDirectory = path.resolve(process.cwd(), directory);
-            serve(absoluteDirectory, port, host);
+            const { port: actualPort } = await serve(absoluteDirectory, requestedPort, host);
             const readmePath = path.join(absoluteDirectory, 'README.md');
             const initialPath = existsSync(readmePath) ? '/README.md' : '';
             const displayHost = (host === '0.0.0.0' || host === '::') ? 'localhost' : host;
             if (options.open) {
-              logger.log('CLI', `🌐 Opening browser at http://${displayHost}:${port}${initialPath}`);
-              open(`http://${displayHost}:${port}${initialPath}`);
+              logger.log('CLI', `🌐 Opening browser at http://${displayHost}:${actualPort}${initialPath}`);
+              open(`http://${displayHost}:${actualPort}${initialPath}`);
             } else {
-              logger.log('CLI', `🌐 Server running at http://${displayHost}:${port}${initialPath}`);
+              logger.log('CLI', `🌐 Server running at http://${displayHost}:${actualPort}${initialPath}`);
             }
           });
 

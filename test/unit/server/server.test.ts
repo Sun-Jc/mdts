@@ -1,6 +1,6 @@
 import { type Express, type NextFunction, type Request, type Response } from 'express';
 import * as fs from 'fs';
-import { createApp, serve } from '../../../src/server/server';
+import { createApp, serve, findAvailablePort } from '../../../src/server/server';
 import { setupWatcher } from '../../../src/server/watcher';
 import { getConfig, saveConfig } from '../../../src/server/config';
 
@@ -35,6 +35,19 @@ jest.mock('fs', () => ({
   ...jest.requireActual('fs'),
   existsSync: jest.fn(),
   statSync: jest.fn(),
+}));
+
+// Mock net module for port checking
+jest.mock('net', () => ({
+  createServer: jest.fn(() => ({
+    once: jest.fn((event, callback) => {
+      if (event === 'listening') {
+        callback();
+      }
+    }),
+    close: jest.fn(),
+    listen: jest.fn(),
+  })),
 }));
 
 // Mock setupWatcher
@@ -304,10 +317,11 @@ describe('server.ts unit tests', () => {
   });
 
   describe('serve', () => {
-    it('should start a server and setup watcher', () => {
-      const server = serve('/mock/directory', 3000, 'localhost');
+    it('should start a server and setup watcher', async () => {
+      const result = await serve('/mock/directory', 3000, 'localhost');
+      expect(result.port).toBe(3000);
       expect(app.listen).toHaveBeenCalledWith(3000, 'localhost', expect.any(Function));
-      expect(setupWatcher).toHaveBeenCalledWith('/mock/directory', server, 3000);
+      expect(setupWatcher).toHaveBeenCalledWith('/mock/directory', result.server, 3000);
     });
   });
 });
