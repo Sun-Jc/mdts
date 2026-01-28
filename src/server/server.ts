@@ -29,17 +29,17 @@ export const findAvailablePort = async (startPort: number, host: string): Promis
       return port;
     }
   }
-  
+
   throw new Error(`No available port found in range ${startPort}-${startPort + MAX_PORT_ATTEMPTS - 1}`);
 };
 
 export const serve = async (directory: string, port: number, host: string): Promise<{ server: import('http').Server; port: number }> => {
   const availablePort = await findAvailablePort(port, host);
-  
+
   if (availablePort !== port) {
     logger.log('Server', `⚠️  Port ${port} is in use, using port ${availablePort} instead`);
   }
-  
+
   const app = createApp(directory);
   const server = app.listen(availablePort, host, () => {
     logger.log('Server', `📁 Mounted directory: ${directory}`);
