@@ -21,12 +21,11 @@ export const fileTreeRouter = (directory: string): Router => {
   return router;
 };
 
-const isDotFileOrDirectory = (entryName: string): boolean => {
-  return entryName.startsWith('.');
-};
-
 const shouldIncludeEntry = (entry: Dirent): boolean => {
-  return !isDotFileOrDirectory(entry.name) && !EXCLUDED_DIRECTORIES.includes(entry.name);
+  // Exclude only directories explicitly listed in EXCLUDED_DIRECTORIES
+  // This allows dot directories like .github, .agent to be included
+  // while still excluding .git, .vscode, .idea, etc.
+  return !EXCLUDED_DIRECTORIES.includes(entry.name);
 };
 
 const getFileTree = async (
