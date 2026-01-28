@@ -18,9 +18,19 @@ export const DirectoryTreeItemView: React.FC<DirectoryTreeItemViewProps> = ({
     key={currentPath}
     itemId={currentPath}
     label={
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <FolderOutlined sx={{ mr: 1, fontSize: 'small' }} color="primary" />
-        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%', gap: 1 }}>
+        <FolderOutlined sx={{ mt: 0.5, fontSize: 'small', color: 'primary', flexShrink: 0 }} />
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            fontSize: '0.875rem',
+            wordBreak: 'break-word',
+            whiteSpace: 'normal',
+            overflowWrap: 'break-word',
+            lineHeight: 1.3,
+          }}
+          title={directoryName}
+        >
           {directoryName}
         </Typography>
       </Box>

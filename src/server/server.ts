@@ -60,6 +60,18 @@ export const createApp = (
   // JSON middleware - must be before routes that need it
   app.use(express.json());
 
+  // Ignore common browser requests that don't exist
+  app.use((req, res, next) => {
+    if (
+      req.path.startsWith('/.well-known/') ||
+      req.path === '/favicon.ico' ||
+      req.path === '/apple-touch-icon.png'
+    ) {
+      return res.status(404).end();
+    }
+    next();
+  });
+
   // Mount library static files
   app.use(express.static(path.join(currentLocation, './public')));
   app.use(express.static(path.join(currentLocation, '../frontend')));

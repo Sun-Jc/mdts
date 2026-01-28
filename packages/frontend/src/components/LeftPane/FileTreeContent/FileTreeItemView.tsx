@@ -19,16 +19,36 @@ export const FileTreeItemView: React.FC<FileTreeItemViewProps> = ({ fileItem, on
       key={fileItem.path}
       itemId={fileItem.path}
       label={
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <ArticleOutlined sx={{ mr: 1, fontSize: 'small' }} />
-          <Typography variant="body2" sx={{ fontSize: '0.875rem', color: getStatusColor(fileItem.status) }}>
-            {fileName}
-          </Typography>
-          {fileItem.status && fileItem.status !== ' ' && (
-            <Typography variant="body2" sx={{ fontSize: '0.75rem', color: getStatusColor(fileItem.status), ml: 1 }}>
-              {fileItem.status}
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%', gap: 1 }}>
+          <ArticleOutlined sx={{ mr: 0, mt: 0.5, fontSize: 'small', flexShrink: 0 }} />
+          <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', minWidth: 0 }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                fontSize: '0.875rem', 
+                color: getStatusColor(fileItem.status),
+                wordBreak: 'break-word',
+                whiteSpace: 'normal',
+                overflowWrap: 'break-word',
+                lineHeight: 1.3,
+              }}
+              title={fileName}
+            >
+              {fileName}
             </Typography>
-          )}
+            {fileItem.status && fileItem.status !== ' ' && (
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  fontSize: '0.75rem', 
+                  color: getStatusColor(fileItem.status),
+                  lineHeight: 1.2,
+                }}
+              >
+                {fileItem.status}
+              </Typography>
+            )}
+          </Box>
         </Box>
       }
       onClick={handleClick}
