@@ -4,6 +4,7 @@ import { fetchData } from '../../api';
 export interface FileTreeItem {
   path: string;
   status: string;
+  tags?: string[];
   mtime?: number;
   ctime?: number;
 }
@@ -14,6 +15,7 @@ interface FileTreeState {
   fileTree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[];
   filteredFileTree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[];
   searchQuery: string;
+  selectedTags: string[];
   expandedNodes: string[];
   mountedDirectoryPath: string;
   sortMode: SortMode;
@@ -26,6 +28,7 @@ const initialState: FileTreeState = {
   fileTree: [],
   filteredFileTree: [],
   searchQuery: '',
+  selectedTags: [],
   expandedNodes: [],
   mountedDirectoryPath: '',
   sortMode: 'name',
@@ -143,16 +146,25 @@ const cleanupStarredFiles = (starred: string[], existingPaths: string[]): string
 
 const filterTree = (
   tree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[],
-  searchQuery: string
+  searchQuery: string,
+  selectedTags: string[]
 ): (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[] => {
-  if (!searchQuery) return tree;
+  if (!searchQuery && selectedTags.length === 0) return tree;
 
   return tree
     .reduce((acc: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[], item) => {
       if ('path' in item) {
         const fileItem = item as FileTreeItem;
         const fileName = fileItem.path.split('/').pop() || '';
-        return fileName.toLowerCase().includes(searchQuery.toLowerCase())
+        
+        // Apply search query filter
+        const matchesSearch = !searchQuery || fileName.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        // Apply tags filter (file matches if it has ANY of the selected tags)
+        const matchesTags = selectedTags.length === 0 || 
+          (fileItem.tags && fileItem.tags.some(tag => selectedTags.includes(tag)));
+        
+        return matchesSearch && matchesTags
           ? [...acc, item]
           : acc;
       } else {
@@ -160,7 +172,7 @@ const filterTree = (
         const value = item[key];
 
         const children = Array.isArray(value)
-          ? filterTree(value, searchQuery)
+          ? filterTree(value, searchQuery, selectedTags)
           : [];
 
         return children.length > 0
@@ -189,7 +201,21 @@ const fileTreeSlice = createSlice({
   reducers: {
     setSearchQuery: (state, action: { payload: string }) => {
       state.searchQuery = action.payload;
-      state.filteredFileTree = filterTree(state.fileTree, action.payload);
+      state.filteredFileTree = filterTree(state.fileTree, action.payload, state.selectedTags);
+    },
+    setSelectedTags: (state, action: { payload: string[] }) => {
+      state.selectedTags = action.payload;
+      state.filteredFileTree = filterTree(state.fileTree, state.searchQuery, action.payload);
+    },
+    toggleTag: (state, action: { payload: string }) => {
+      const tag = action.payload;
+      const index = state.selectedTags.indexOf(tag);
+      if (index > -1) {
+        state.selectedTags.splice(index, 1);
+      } else {
+        state.selectedTags.push(tag);
+      }
+      state.filteredFileTree = filterTree(state.fileTree, state.searchQuery, state.selectedTags);
     },
     setSortMode: (state, action: { payload: SortMode }) => {
       state.sortMode = action.payload;
@@ -252,7 +278,7 @@ const fileTreeSlice = createSlice({
         state.loading = false;
         state.fileTree = action.payload.fileTree;
         state.mountedDirectoryPath = action.payload.mountedDirectoryPath;
-        state.filteredFileTree = filterTree(action.payload.fileTree, state.searchQuery);
+        state.filteredFileTree = filterTree(action.payload.fileTree, state.searchQuery, state.selectedTags);
         state.expandedNodes = loadExpandedNodes(action.payload.mountedDirectoryPath);
         state.sortMode = loadSortMode();
         
@@ -343,6 +369,8 @@ export const selectFilteredFileTree = (
 
 export const {
   setSearchQuery,
+  setSelectedTags,
+  toggleTag,
   setSortMode,
   toggleStarred,
   toggleNode,

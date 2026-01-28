@@ -9,12 +9,14 @@ import {
   setSortMode,
   SortMode,
   setExpandedNodes,
-  setSearchQuery
+  setSearchQuery,
+  toggleTag
 } from '../../store/slices/fileTreeSlice';
 import { AppDispatch, RootState } from '../../store/store';
 import FileTreeContent from './FileTreeContent/FileTreeContent';
 import FileTreeHeader from './FileTreeHeader';
 import FileTreeSearch from './FileTreeSearch';
+import FileTreeTags from './FileTreeTags';
 
 interface FileTreeComponentProps {
   onFileSelect: (path: string) => void;
@@ -32,6 +34,7 @@ const FileTree: React.FC<FileTreeComponentProps> = ({ onFileSelect, isOpen, onTo
     loading,
     error,
     searchQuery,
+    selectedTags,
     expandedNodes,
     sortMode
   } = useSelector((state: RootState) => state.fileTree);
@@ -46,6 +49,10 @@ const FileTree: React.FC<FileTreeComponentProps> = ({ onFileSelect, isOpen, onTo
 
   const handleClearSearch = useCallback(() => {
     dispatch(setSearchQuery(''));
+  }, [dispatch]);
+
+  const handleToggleTag = useCallback((tag: string) => {
+    dispatch(toggleTag(tag));
   }, [dispatch]);
 
   const handleSortModeChange = useCallback((mode: SortMode) => {
@@ -144,6 +151,11 @@ const FileTree: React.FC<FileTreeComponentProps> = ({ onFileSelect, isOpen, onTo
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
           onClearSearch={handleClearSearch}
+        />
+        <FileTreeTags
+          fileTree={fileTree}
+          selectedTags={selectedTags}
+          onToggleTag={handleToggleTag}
         />
         <FileTreeContent
           filteredFileTree={filteredFileTree}

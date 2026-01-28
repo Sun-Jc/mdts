@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import fs, { Dirent, Stats } from 'fs';
 import path from 'path';
+import matter from 'gray-matter';
 import simpleGit, { SimpleGit, StatusResult, FileStatusResult } from 'simple-git';
 import { EXCLUDED_DIRECTORIES } from '../../constants';
 
@@ -9,6 +10,7 @@ type SortMode = 'name' | 'mtime' | 'ctime' | 'mtime_desc' | 'ctime_desc';
 interface FileTreeItemWithStats {
   path: string;
   status: string;
+  tags?: string[];
   mtime?: number;
   ctime?: number;
 }
@@ -47,6 +49,29 @@ const getFileStats = (filePath: string): { mtime: number; ctime: number } | null
     };
   } catch {
     return null;
+  }
+};
+
+const extractTags = (filePath: string): string[] => {
+  try {
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const { data } = matter(content);
+    
+    if (!data.tags) return [];
+    
+    // Handle array format: tags: [tag1, tag2]
+    if (Array.isArray(data.tags)) {
+      return data.tags.filter((tag): tag is string => typeof tag === 'string');
+    }
+    
+    // Handle string format: tags: tag1, tag2
+    if (typeof data.tags === 'string') {
+      return data.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    }
+    
+    return [];
+  } catch {
+    return [];
   }
 };
 
@@ -144,11 +169,15 @@ const getFileTree = async (
 
       const fullFilePath = path.join(baseDirectory, entryPath);
       const stats = getFileStats(fullFilePath);
+      const tags = extractTags(fullFilePath);
 
       const fileItem: FileTreeItemWithStats = { path: entryPath, status };
       if (stats) {
         fileItem.mtime = stats.mtime;
         fileItem.ctime = stats.ctime;
+      }
+      if (tags.length > 0) {
+        fileItem.tags = tags;
       }
 
       tree.push(fileItem);
