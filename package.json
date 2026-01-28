@@ -1,6 +1,6 @@
 {
   "name": "mdts",
-  "version": "0.15.0",
+  "version": "0.16.0-jc",
   "packageManager": "npm@11.5.1",
   "description": "A markdown preview server.",
   "main": "dist/index.js",
@@ -36,7 +36,7 @@
     "cli",
     "live-reload"
   ],
-  "author": "unhappychoice",
+  "author": ["unhappychoice", "JC"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/unhappychoice/mdts/issues"
