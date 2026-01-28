@@ -36,7 +36,10 @@
     "cli",
     "live-reload"
   ],
-  "author": ["unhappychoice", "JC"],
+  "author": "unhappychoice",
+  "contributors": [
+    "JC"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/unhappychoice/mdts/issues"
