@@ -1,6 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import ResizablePane from '../ResizablePane/ResizablePane';
 import {
   expandAllNodes,
   fetchFileTree,
@@ -93,32 +94,57 @@ const FileTree: React.FC<FileTreeComponentProps> = ({ onFileSelect, isOpen, onTo
 
   const overlay = theme.palette.mode === 'dark' ? 'rgba(16, 16, 16, 0.01)' : 'rgba(192, 192, 192, 0.01)';
 
+  if (!isOpen) {
+    return (
+      <Box sx={{
+        width: '66px',
+        background: `linear-gradient(135deg, ${overlay} 0%, ${theme.palette.background.paper} 100%)`,
+        py: 2,
+        borderRight: '1px solid',
+        borderColor: 'divider',
+        minHeight: '100%',
+        flexShrink: 0,
+      }}>
+        <FileTreeHeader
+          isOpen={false}
+          onToggle={onToggle}
+          onExpandAllClick={handleExpandAllClick}
+          onCollapseAll={handleCollapseAll}
+          sortMode={sortMode}
+          onSortModeChange={handleSortModeChange}
+        />
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{
-      width: isOpen ? '300px' : '66px',
-      background: `linear-gradient(135deg, ${overlay} 0%, ${theme.palette.background.paper} 100%)`,
-      py: 2,
-      borderRight: '1px solid',
-      borderColor: 'divider',
-      minHeight: '100%',
-      flexShrink: 0,
-    }}>
-      <FileTreeHeader
-        isOpen={isOpen}
-        onToggle={onToggle}
-        onExpandAllClick={handleExpandAllClick}
-        onCollapseAll={handleCollapseAll}
-        sortMode={sortMode}
-        onSortModeChange={handleSortModeChange}
-      />
-      {isOpen && (
+    <ResizablePane
+      defaultWidth={300}
+      minWidth={200}
+      maxWidth={window.innerWidth * 0.5}
+      storageKey="mdts_file_tree_width"
+    >
+      <Box sx={{
+        height: '100%',
+        background: `linear-gradient(135deg, ${overlay} 0%, ${theme.palette.background.paper} 100%)`,
+        py: 2,
+        borderRight: '1px solid',
+        borderColor: 'divider',
+        minHeight: '100%',
+      }}>
+        <FileTreeHeader
+          isOpen={isOpen}
+          onToggle={onToggle}
+          onExpandAllClick={handleExpandAllClick}
+          onCollapseAll={handleCollapseAll}
+          sortMode={sortMode}
+          onSortModeChange={handleSortModeChange}
+        />
         <FileTreeSearch
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
           onClearSearch={handleClearSearch}
         />
-      )}
-      {isOpen && (
         <FileTreeContent
           filteredFileTree={filteredFileTree}
           loading={loading}
@@ -126,10 +152,9 @@ const FileTree: React.FC<FileTreeComponentProps> = ({ onFileSelect, isOpen, onTo
           expandedNodes={expandedNodes}
           onFileSelect={onFileSelect}
           onExpandedItemsChange={handleExpandedItemsChange}
-          dispatch={dispatch}
         />
-      )}
-    </Box>
+      </Box>
+    </ResizablePane>
   );
 };
 
