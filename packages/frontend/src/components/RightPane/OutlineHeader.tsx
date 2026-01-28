@@ -18,6 +18,10 @@ const OutlineHeader: React.FC<OutlineHeaderProps> = ({ isOpen, onToggle }) => {
         height: '34px',
         marginBottom: 2,
         px: isOpen ? 2 : 0.5,
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+        backgroundColor: 'inherit',
       }}
     >
       <IconButton onClick={onToggle} size="small" sx={{ marginBottom: 0, marginLeft: isOpen ? '0' : '12px' }} aria-label="toggle outline">

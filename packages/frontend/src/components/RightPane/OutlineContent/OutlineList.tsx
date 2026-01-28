@@ -9,7 +9,7 @@ interface OutlineListProps {
 }
 
 export const OutlineList: React.FC<OutlineListProps> = ({ outline, onItemClick }) => (
-  <List dense className="custom-scrollbar" sx={{ overflowY: 'auto', height: 'calc(100vh - 132px)', px: 2 }}>
+  <List dense className="custom-scrollbar" sx={{ overflowY: 'auto', height: 'calc(100vh - 100px)', px: 2, flexGrow: 1 }}>
     {outline.map((item) => (
       <OutlineListItem key={item.id} item={item} onItemClick={onItemClick} />
     ))}

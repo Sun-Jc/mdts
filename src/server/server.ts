@@ -120,7 +120,7 @@ export const createApp = (
     }
     next();
   });
-  app.use('/api/markdown', express.static(directory));
+  app.use('/api/markdown', express.static(directory, { dotfiles: 'allow' }));
 
   // Catch-all route to serve index.html for any other requests
   app.get('*splat', async (req, res) => {

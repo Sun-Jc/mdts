@@ -31,6 +31,9 @@ const Outline: React.FC<OutlineProps> = ({ filePath, onItemClick, isOpen, onTogg
       borderColor: 'divider',
       minHeight: '100%',
       flexShrink: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
     }}>
       <OutlineHeader isOpen={isOpen} onToggle={onToggle} />
       {isOpen && (
