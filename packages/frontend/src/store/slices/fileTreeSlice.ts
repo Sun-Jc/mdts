@@ -17,6 +17,7 @@ interface FileTreeState {
   expandedNodes: string[];
   mountedDirectoryPath: string;
   sortMode: SortMode;
+  starredFiles: string[];
   loading: boolean;
   error: string | null;
 }
@@ -28,6 +29,7 @@ const initialState: FileTreeState = {
   expandedNodes: [],
   mountedDirectoryPath: '',
   sortMode: 'name',
+  starredFiles: [],
   loading: true,
   error: null,
 };
@@ -35,6 +37,7 @@ const initialState: FileTreeState = {
 const LOCAL_STORAGE_KEY_PREFIX = 'mdts_expanded_nodes_';
 const LOCAL_STORAGE_RECENT_PATHS_KEY = 'mdts_recent_paths';
 const LOCAL_STORAGE_SORT_MODE_KEY = 'mdts_sort_mode';
+const LOCAL_STORAGE_STARRED_FILES_KEY = 'mdts_starred_files';
 const MAX_RECENT_PATHS = 10;
 
 const saveExpandedNodes = (path: string, nodes: string[]) => {
@@ -91,6 +94,53 @@ const loadSortMode = (): SortMode => {
   }
 };
 
+const saveStarredFiles = (files: string[]) => {
+  try {
+    localStorage.setItem(LOCAL_STORAGE_STARRED_FILES_KEY, JSON.stringify(files));
+  } catch (e) {
+    console.error('Failed to save starred files to local storage', e);
+  }
+};
+
+const loadStarredFiles = (): string[] => {
+  try {
+    const stored = localStorage.getItem(LOCAL_STORAGE_STARRED_FILES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error('Failed to load starred files from local storage', e);
+    return [];
+  }
+};
+
+const getFilePathsFromTree = (
+  tree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[],
+): string[] => {
+  const paths: string[] = [];
+  
+  const traverse = (items: any[]) => {
+    items.forEach(item => {
+      if ('path' in item) {
+        paths.push((item as FileTreeItem).path);
+      } else {
+        const key = Object.keys(item)[0];
+        paths.push(key);
+        const children = item[key];
+        if (Array.isArray(children)) {
+          traverse(children);
+        }
+      }
+    });
+  };
+  
+  traverse(tree);
+  return paths;
+};
+
+const cleanupStarredFiles = (starred: string[], existingPaths: string[]): string[] => {
+  const pathSet = new Set(existingPaths);
+  return starred.filter(starredPath => pathSet.has(starredPath));
+};
+
 const filterTree = (
   tree: (FileTreeItem | { [key: string]: (FileTreeItem | object)[] })[],
   searchQuery: string
@@ -145,6 +195,16 @@ const fileTreeSlice = createSlice({
       state.sortMode = action.payload;
       saveSortMode(action.payload);
     },
+    toggleStarred: (state, action: { payload: string }) => {
+      const filePath = action.payload;
+      const index = state.starredFiles.indexOf(filePath);
+      if (index > -1) {
+        state.starredFiles.splice(index, 1);
+      } else {
+        state.starredFiles.push(filePath);
+      }
+      saveStarredFiles(state.starredFiles);
+    },
     toggleNode: (state, action: { payload: string }) => {
       const path = action.payload;
       if (state.expandedNodes.includes(path)) {
@@ -195,6 +255,15 @@ const fileTreeSlice = createSlice({
         state.filteredFileTree = filterTree(action.payload.fileTree, state.searchQuery);
         state.expandedNodes = loadExpandedNodes(action.payload.mountedDirectoryPath);
         state.sortMode = loadSortMode();
+        
+        // Load and cleanup starred files
+        let starredFiles = loadStarredFiles();
+        const fileTreePaths = getFilePathsFromTree(action.payload.fileTree);
+        const cleanedStarred = cleanupStarredFiles(starredFiles, fileTreePaths);
+        if (cleanedStarred.length !== starredFiles.length) {
+          saveStarredFiles(cleanedStarred);
+        }
+        state.starredFiles = cleanedStarred;
       })
       .addCase(fetchFileTree.rejected, (state, action) => {
         state.loading = false;
@@ -275,6 +344,7 @@ export const selectFilteredFileTree = (
 export const {
   setSearchQuery,
   setSortMode,
+  toggleStarred,
   toggleNode,
   setExpandedNodes,
   expandAllNodes,
