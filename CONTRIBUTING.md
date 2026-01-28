@@ -9,7 +9,7 @@ All kinds of contributions are welcome: bug reports, ideas, code changes, or eve
 
 Clone the repo and install dependencies:
 
-```
+```bash
 git clone https://github.com/unhappychoice/mdts.git
 cd mdts
 npm install
@@ -21,14 +21,16 @@ mdts is written in TypeScript. You'll find the source in `src/`, and tests in `t
 
 Handy commands:
 
-### Run 
-``` 
+### Run
+
+```bash
 npm run dev            # Watch mode for development
 npm run start          # Build and run
 ```
 
 ### Test and lint
-```
+
+```bash
 npm run watch          # Run tests and lints automatically
 npm run watch:frontend # Run tests and lints automatically
 npm run test           # Run tests
@@ -50,7 +52,7 @@ Before opening a PR:
 
 - Run lint and tests:
 
-```
+```bash
 npm run lint
 npm run lint:frontend
 npm test
