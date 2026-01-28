@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, IconButton, Typography, Select, MenuItem } from '@mui/material';
+import { Box, IconButton, Select, MenuItem } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
@@ -44,9 +44,6 @@ const FileTreeHeader: React.FC<FileTreeHeaderProps> = ({
     >
       {isOpen && (
         <Box sx={{ display: 'flex', alignItems: 'center', flex: 1, gap: 1 }}>
-          <Typography variant="h6" gutterBottom sx={{ flex: 1, marginBottom: 0 }}>
-            File Tree
-          </Typography>
           <Select
             value={sortMode}
             onChange={(e) => onSortModeChange(e.target.value as SortMode)}
