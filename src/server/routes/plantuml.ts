@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import { logger } from '../../utils/logger';
-
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const plantuml = require('node-plantuml-back');
 
@@ -9,6 +8,23 @@ type PlantumlModule = {
     in: NodeJS.WritableStream;
     out: NodeJS.ReadableStream;
   };
+};
+
+const DEFAULT_TIMEOUT_MS = 8000;
+
+const withTimeout = async <T>(promise: Promise<T>, ms: number, message: string): Promise<T> => {
+  let timeoutId: NodeJS.Timeout | null = null;
+  const timeoutPromise = new Promise<T>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(message)), ms);
+  });
+
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
 };
 
 const createSvgGenerator = (plantumlModule: PlantumlModule) => async (diagram: string) => {
@@ -47,7 +63,11 @@ export const plantumlRouter = (plantumlModule: PlantumlModule = plantuml): Route
     }
 
     try {
-      const svg = await generateSvg(diagram);
+      const svg = await withTimeout(
+        generateSvg(diagram),
+        DEFAULT_TIMEOUT_MS,
+        'PlantUML local render timed out'
+      );
 
       res.setHeader('Content-Type', 'image/svg+xml');
       res.send(svg);

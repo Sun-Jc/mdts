@@ -1,5 +1,5 @@
 import { Handler, HandlerEvent, HandlerContext } from '@types/aws-lambda';
-import { encode } from 'plantuml-encoder';
+// External PlantUML requests are intentionally disabled in the Netlify build.
 
 const handler: Handler = async (event: HandlerEvent, context: HandlerContext) => {
   const headers = {
@@ -26,32 +26,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   }
 
   try {
-    const body = JSON.parse(event.body || '{}');
-    const { diagram } = body;
-
-    if (!diagram) {
-      return {
-        statusCode: 400,
-        headers: { ...headers, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'diagram body parameter is required' })
-      };
-    }
-
-    const encoded = encode(diagram);
-    const plantumlServerUrl = 'https://www.plantuml.com/plantuml';
-    const svgUrl = `${plantumlServerUrl}/svg/${encoded}`;
-
-    const response = await fetch(svgUrl);
-    if (!response.ok) {
-      throw new Error(`PlantUML server responded with ${response.status}`);
-    }
-
-    const svg = await response.text();
-
     return {
-      statusCode: 200,
-      headers,
-      body: svg
+      statusCode: 501,
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        error: 'PlantUML rendering is disabled in the Netlify build to prevent external requests.'
+      })
     };
 
   } catch (error) {
