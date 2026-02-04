@@ -7,15 +7,26 @@ import { outlineRouter } from './routes/outline';
 import { getConfig, saveConfig } from './config';
 import { setupWatcher } from './watcher';
 import { plantumlRouter } from './routes/plantuml';
+import { searchRouter } from './routes/search';
+import { frontmatterRouter } from './routes/frontmatter';
+
+const getServerPort = (server: import('http').Server, fallbackPort: number): number => {
+  const address = server.address();
+  if (address && typeof address === 'object' && 'port' in address && typeof address.port === 'number') {
+    return address.port;
+  }
+  return fallbackPort;
+};
 
 export const serve = (directory: string, port: number, host: string): import('http').Server => {
   const app = createApp(directory);
-  const server = app.listen(port, host, () => {
+  const server = app.listen(port, host);
+  server.on('listening', () => {
+    const actualPort = getServerPort(server, port);
     logger.log('Server', `📁 Mounted directory: ${directory}`);
-    logger.log('Server', `🚀 Server listening at http://${host}:${port}`);
+    logger.log('Server', `🚀 Server listening at http://${host}:${actualPort}`);
+    setupWatcher(directory, server, actualPort);
   });
-
-  setupWatcher(directory, server, port);
 
   return server;
 };
@@ -37,6 +48,8 @@ export const createApp = (
   app.use('/api/filetree', fileTreeRouter(directory));
   app.use('/api/outline', outlineRouter(directory));
   app.use('/api/plantuml', plantumlRouter());
+  app.use('/api/search', searchRouter(directory));
+  app.use('/api/frontmatter', frontmatterRouter(directory));
   app.get('/api/config', (req, res) => {
     res.json(getConfig());
   });
@@ -77,7 +90,7 @@ export const createApp = (
     }
     next();
   });
-  app.use('/api/markdown', express.static(directory));
+  app.use('/api/markdown', express.static(directory, { dotfiles: 'allow' }));
 
   // Catch-all route to serve index.html for any other requests
   app.get('*splat', async (req, res) => {
@@ -113,4 +126,3 @@ export const createApp = (
 
   return app;
 };
-

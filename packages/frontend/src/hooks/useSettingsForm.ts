@@ -13,6 +13,7 @@ interface UseSettingsFormReturn {
   fontFamilyMonospace: string;
   fontSize: number;
   syntaxHighlighterTheme: string;
+  enableFullTextSearch: boolean;
   fontInputMode: 'select' | 'text';
   fontInputModeMonospace: 'select' | 'text';
   setDarkMode: (mode: 'dark' | 'light' | 'auto') => void;
@@ -22,6 +23,7 @@ interface UseSettingsFormReturn {
   setFontFamilyMonospace: (font: string) => void;
   setFontSize: (size: number) => void;
   setSyntaxHighlighterTheme: (theme: string) => void;
+  setEnableFullTextSearch: (enabled: boolean) => void;
   setFontInputMode: (mode: 'select' | 'text') => void;
   setFontInputModeMonospace: (mode: 'select' | 'text') => void;
   handleSave: () => void;
@@ -29,6 +31,7 @@ interface UseSettingsFormReturn {
   handleToggleDarkMode: (mode: 'dark' | 'light' | 'auto') => void;
   handleToggleTheme: (theme: string) => void;
   handleToggleContentMode: (mode: 'full' | 'compact') => void;
+  handleToggleFullTextSearch: (enabled: boolean) => void;
   handleFontInputModeChange: (_: React.MouseEvent<HTMLElement>, newMode: 'select' | 'text' | null) => void;
   handleFontInputModeMonospaceChange: (_: React.MouseEvent<HTMLElement>, newMode: 'select' | 'text' | null) => void;
   handleReset: () => void;
@@ -47,6 +50,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     fontFamily: initialFontFamily,
     fontFamilyMonospace: initialFontFamilyMonospace,
     fontSize: initialFontSize,
+    enableFullTextSearch: initialEnableFullTextSearch,
   } = useSelector((state: RootState) => state.config);
 
   const [darkMode, setDarkMode] = useState(initialDarkMode);
@@ -56,6 +60,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
   const [fontFamilyMonospace, setFontFamilyMonospace] = useState(initialFontFamilyMonospace);
   const [fontSize, setFontSize] = useState(initialFontSize);
   const [syntaxHighlighterTheme, setSyntaxHighlighterTheme] = useState(initialSyntaxHighlighterTheme);
+  const [enableFullTextSearch, setEnableFullTextSearch] = useState(initialEnableFullTextSearch);
   const [fontInputMode, setFontInputMode] = useState<'select' | 'text'>(WEB_SAFE_FONTS.includes(initialFontFamily) ? 'select' : 'text');
   const [fontInputModeMonospace, setFontInputModeMonospace] = useState<'select' | 'text'>(
     WEB_SAFE_MONOSPACE_FONTS.includes(initialFontFamilyMonospace) ? 'select' : 'text'
@@ -69,6 +74,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     setFontFamily(initialFontFamily);
     setFontFamilyMonospace(initialFontFamilyMonospace);
     setFontSize(initialFontSize);
+    setEnableFullTextSearch(initialEnableFullTextSearch);
     setFontInputMode(WEB_SAFE_FONTS.includes(initialFontFamily) ? 'select' : 'text');
     setFontInputModeMonospace(WEB_SAFE_MONOSPACE_FONTS.includes(initialFontFamilyMonospace) ? 'select' : 'text');
   }, [
@@ -78,13 +84,21 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     initialSyntaxHighlighterTheme,
     initialFontFamily,
     initialFontFamilyMonospace,
-    initialFontSize
+    initialFontSize,
+    initialEnableFullTextSearch,
   ]);
 
   const handleSave = useCallback(() => {
-    dispatch(saveConfigToBackend({ theme: theme, syntaxHighlighterTheme, fontFamily, fontFamilyMonospace, fontSize }));
+    dispatch(saveConfigToBackend({
+      theme: theme,
+      syntaxHighlighterTheme,
+      fontFamily,
+      fontFamilyMonospace,
+      fontSize,
+      enableFullTextSearch,
+    }));
     dispatch(saveAppSetting({ darkMode, contentMode }));
-  }, [contentMode, darkMode, theme, dispatch, fontFamily, fontFamilyMonospace, fontSize, syntaxHighlighterTheme]);
+  }, [contentMode, darkMode, theme, dispatch, fontFamily, fontFamilyMonospace, fontSize, syntaxHighlighterTheme, enableFullTextSearch]);
 
   const handleCancel = useCallback(() => {
     setDarkMode(initialDarkMode);
@@ -94,6 +108,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     setFontFamilyMonospace(initialFontFamilyMonospace);
     setFontSize(initialFontSize);
     setSyntaxHighlighterTheme(initialSyntaxHighlighterTheme);
+    setEnableFullTextSearch(initialEnableFullTextSearch);
     setFontInputMode(WEB_SAFE_FONTS.includes(initialFontFamily) ? 'select' : 'text');
     setFontInputModeMonospace(WEB_SAFE_MONOSPACE_FONTS.includes(initialFontFamilyMonospace) ? 'select' : 'text');
   }, [
@@ -104,6 +119,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     initialFontFamilyMonospace,
     initialFontSize,
     initialSyntaxHighlighterTheme,
+    initialEnableFullTextSearch,
   ]);
 
   const handleToggleDarkMode = useCallback((mode: 'dark' | 'light' | 'auto') => {
@@ -116,6 +132,10 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
 
   const handleToggleContentMode = useCallback((mode: 'full' | 'compact') => {
     setContentMode(mode);
+  }, []);
+
+  const handleToggleFullTextSearch = useCallback((enabled: boolean) => {
+    setEnableFullTextSearch(enabled);
   }, []);
 
   const handleFontInputModeChange = useCallback((_: React.MouseEvent<HTMLElement>, newMode: 'select' | 'text' | null) => {
@@ -144,6 +164,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     const defaultFontFamilyMonospace = 'monospace';
     const defaultFontSize = 14;
     const defaultSyntaxHighlighterTheme = 'auto';
+    const defaultEnableFullTextSearch = true;
 
     setDarkMode(defaultDarkMode);
     setContentMode(defaultContentMode);
@@ -152,6 +173,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     setFontFamilyMonospace(defaultFontFamilyMonospace);
     setFontSize(defaultFontSize);
     setSyntaxHighlighterTheme(defaultSyntaxHighlighterTheme);
+    setEnableFullTextSearch(defaultEnableFullTextSearch);
     setFontInputMode(WEB_SAFE_FONTS.includes(defaultFontFamily) ? 'select' : 'text');
     setFontInputModeMonospace(WEB_SAFE_MONOSPACE_FONTS.includes(defaultFontFamilyMonospace) ? 'select' : 'text');
 
@@ -161,6 +183,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
       fontFamily: defaultFontFamily,
       fontFamilyMonospace: defaultFontFamilyMonospace,
       fontSize: defaultFontSize,
+      enableFullTextSearch: defaultEnableFullTextSearch,
     }));
     dispatch(saveAppSetting({ darkMode: defaultDarkMode, contentMode: defaultContentMode }));
   }, [dispatch]);
@@ -173,6 +196,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     fontFamilyMonospace,
     fontSize,
     syntaxHighlighterTheme,
+    enableFullTextSearch,
     fontInputMode,
     fontInputModeMonospace,
     setDarkMode,
@@ -182,6 +206,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     setFontFamilyMonospace,
     setFontSize,
     setSyntaxHighlighterTheme,
+    setEnableFullTextSearch,
     setFontInputMode,
     setFontInputModeMonospace,
     handleSave,
@@ -189,6 +214,7 @@ export const useSettingsForm = (): UseSettingsFormReturn => {
     handleToggleDarkMode,
     handleToggleTheme,
     handleToggleContentMode,
+    handleToggleFullTextSearch,
     handleFontInputModeChange,
     handleFontInputModeMonospaceChange,
     handleReset,

@@ -1,5 +1,7 @@
 import {
   Box,
+  FormControlLabel,
+  Switch,
   ToggleButton,
   ToggleButtonGroup,
   Typography
@@ -10,9 +12,16 @@ import React, { useCallback } from 'react';
 interface LayoutSettingsTabProps {
   contentMode: 'full' | 'compact';
   handleToggleContentMode: (mode: 'full' | 'compact') => void;
+  enableFullTextSearch: boolean;
+  handleToggleFullTextSearch: (enabled: boolean) => void;
 }
 
-const LayoutSettingsTab: React.FC<LayoutSettingsTabProps> = ({ contentMode, handleToggleContentMode }) => {
+const LayoutSettingsTab: React.FC<LayoutSettingsTabProps> = ({
+  contentMode,
+  handleToggleContentMode,
+  enableFullTextSearch,
+  handleToggleFullTextSearch,
+}) => {
   const theme = useTheme();
 
   const handleChange = useCallback((_, newMode) => {
@@ -65,6 +74,19 @@ const LayoutSettingsTab: React.FC<LayoutSettingsTabProps> = ({ contentMode, hand
           Compact
         </ToggleButton>
       </ToggleButtonGroup>
+      <Typography variant="subtitle2" sx={{ mt: 3, mb: 1 }}>Search</Typography>
+      <FormControlLabel
+        control={
+          <Switch
+            checked={enableFullTextSearch}
+            onChange={(event) => handleToggleFullTextSearch(event.target.checked)}
+          />
+        }
+        label="Enable full-text search (Ctrl+K)"
+      />
+      <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+        Search across all markdown files in the mounted directory.
+      </Typography>
     </Box>
   );
 };

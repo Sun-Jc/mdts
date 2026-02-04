@@ -30,6 +30,7 @@ export interface ConfigState {
   fontFamily: string;
   fontFamilyMonospace: string;
   fontSize: number;
+  enableFullTextSearch: boolean;
 }
 
 const initialState: ConfigState = {
@@ -38,6 +39,7 @@ const initialState: ConfigState = {
   fontFamily: 'Roboto',
   fontFamilyMonospace: 'monospace',
   fontSize: 14,
+  enableFullTextSearch: true,
 };
 
 const configSlice = createSlice({
@@ -51,6 +53,7 @@ const configSlice = createSlice({
       state.fontFamily = action.payload.fontFamily;
       state.fontFamilyMonospace = action.payload.fontFamilyMonospace;
       state.fontSize = action.payload.fontSize;
+      state.enableFullTextSearch = action.payload.enableFullTextSearch;
     });
   },
 });

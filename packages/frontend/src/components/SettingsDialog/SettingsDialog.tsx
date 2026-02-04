@@ -24,6 +24,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose }) => {
     fontFamilyMonospace,
     fontSize,
     syntaxHighlighterTheme,
+    enableFullTextSearch,
     fontInputMode,
     fontInputModeMonospace,
     setFontFamily,
@@ -35,6 +36,7 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose }) => {
     handleToggleDarkMode,
     handleToggleTheme,
     handleToggleContentMode,
+    handleToggleFullTextSearch,
     handleFontInputModeChange,
     handleFontInputModeMonospaceChange,
     handleReset,
@@ -85,6 +87,8 @@ const SettingsDialog: React.FC<SettingsDialogProps> = ({ open, onClose }) => {
               <LayoutSettingsTab
                 contentMode={contentMode}
                 handleToggleContentMode={handleToggleContentMode}
+                enableFullTextSearch={enableFullTextSearch}
+                handleToggleFullTextSearch={handleToggleFullTextSearch}
               />
             </TabPanel>
           )}
