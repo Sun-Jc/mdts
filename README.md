@@ -36,6 +36,25 @@ npx mdts
 This starts a local server at http://localhost:8521 and opens your browser.
 Your current directory becomes a browsable Markdown tree.
 
+## 🔧 Run From Source
+
+```bash
+npm run build
+npm run build:frontend
+node dist/index.js
+```
+
+Or simply:
+
+```bash
+npm start
+```
+
+## 📁 Dot Directories
+
+Dot directories and dot Markdown files are included in the file tree, except for
+excluded directories like `.git` and `.vscode`.
+
 ## 💡 Use Cases
 
 - Reviewing AI-generated docs  
@@ -59,7 +78,7 @@ npx mdts <directory> --host 0.0.0.0 --port 3000 --silent
 | ------------------- | ------------------------------------- |---------|
 | `<directory>`       | Directory to serve (default .)       | ./docs  |
 | `--host`, `-H`      | Host to listen on (default localhost) | 0.0.0.0 |
-| `--port`, `-p`      | Port to serve on (default 8521)      | 8000    |
+| `--port`, `-p`      | Port to serve on (default 8521, use `auto` or `0`) | 8000    |
 | `--silent`, `-s`    | Suppress server logs (default false) |         |
 | `--version`, `-V`   | Output version number                 |         |
 | `--help`, `-h`      | Display help for command              |         |
@@ -78,6 +97,10 @@ Experience mdts in action with real examples and interactive features.
 - [Troubleshooting](docs/troubleshooting.md)
 - [Comparison with other tools](docs/comparison.md)
 - [FAQ](docs/faq.md)
+
+## 📝 TODO
+
+- Render LaTeX `\[ ... \]` block syntax
 
 ## Contributing
 

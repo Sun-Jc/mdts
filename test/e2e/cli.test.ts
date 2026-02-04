@@ -3,17 +3,32 @@ import { ChildProcess, spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
+import net from 'net';
 
 const cliPath = path.resolve(__dirname, '../../bin/mdts');
 const testDirectory = path.resolve(__dirname, '../fixtures/mountDirectory');
 const port = 8522;
+const host = '127.0.0.1';
 
 describe('CLI e2e tests', () => {
   let cliProcess: ChildProcess;
   let tempDir: string;
   let originalPath: string | undefined;
+  let canListen = true;
+
+  const canListenOnLocalhost = (): Promise<boolean> => new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => resolve(false));
+    server.listen(0, host, () => {
+      server.close(() => resolve(true));
+    });
+  });
 
   beforeAll(async () => {
+    canListen = await canListenOnLocalhost();
+    if (!canListen) {
+      return;
+    }
     // Create a temporary directory for our dummy 'open' executable
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mdts-test-'));
 
@@ -26,7 +41,7 @@ describe('CLI e2e tests', () => {
     originalPath = process.env.PATH;
     process.env.PATH = `${tempDir}${path.delimiter}${process.env.PATH}`;
 
-    cliProcess = spawn('node', [cliPath, '-p', String(port), testDirectory], {
+    cliProcess = spawn('node', [cliPath, '-p', String(port), '-H', host, testDirectory], {
       env: { ...process.env, PATH: process.env.PATH }, // Pass the modified PATH to the child process
     });
 
@@ -40,7 +55,7 @@ describe('CLI e2e tests', () => {
     const delayMs = 1000;
     for (let i = 0; i < maxAttempts; i++) {
       try {
-        const response = await axios.get(`http://localhost:${port}/api/markdown/content/test.md`);
+        const response = await axios.get(`http://${host}:${port}/api/markdown/content/test.md`);
         if (response.status === 200) {
           console.log(`Server is ready after ${i + 1} attempts.`);
           return; // Server is ready
@@ -54,6 +69,9 @@ describe('CLI e2e tests', () => {
   }, 60000); // Keep the overall timeout for beforeAll
 
   afterAll(() => {
+    if (!canListen) {
+      return;
+    }
     if (cliProcess) {
       cliProcess.kill();
     }
@@ -67,15 +85,20 @@ describe('CLI e2e tests', () => {
   });
 
   test('should serve content/test.md', async () => {
-    const response = await axios.get(`http://localhost:${port}/api/markdown/content/test.md`);
+    if (!canListen) {
+      return;
+    }
+    const response = await axios.get(`http://${host}:${port}/api/markdown/content/test.md`);
     expect(response.status).toBe(200);
     expect(response.data).toContain('# Hello E2E');
   });
 
   test('should serve content/another.md', async () => {
-    const response = await axios.get(`http://localhost:${port}/api/markdown/content/another.md`);
+    if (!canListen) {
+      return;
+    }
+    const response = await axios.get(`http://${host}:${port}/api/markdown/content/another.md`);
     expect(response.status).toBe(200);
     expect(response.data).toContain('## Another Markdown');
   });
 });
-

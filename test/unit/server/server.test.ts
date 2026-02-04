@@ -7,11 +7,21 @@ import { getConfig, saveConfig } from '../../../src/server/config';
 jest.mock('express', () => {
   const mockUse = jest.fn();
   const mockGet = jest.fn();
-  const mockListen = jest.fn((port, host, callback) => {
-    if (callback) {
-      callback();
-    }
-    return { close: jest.fn() };
+  const mockListen = jest.fn((port, host) => {
+    const listeners: Record<string, (() => void)[]> = {};
+    const server = {
+      close: jest.fn(),
+      address: jest.fn(() => ({ port })),
+      on: jest.fn((event: string, handler: () => void) => {
+        listeners[event] = listeners[event] ?? [];
+        listeners[event].push(handler);
+        return server;
+      }),
+      emit: jest.fn((event: string) => {
+        (listeners[event] ?? []).forEach((handler) => handler());
+      }),
+    };
+    return server;
   });
   const mockPost = jest.fn();
   const mockExpress = jest.fn(() => ({
@@ -306,7 +316,8 @@ describe('server.ts unit tests', () => {
   describe('serve', () => {
     it('should start a server and setup watcher', () => {
       const server = serve('/mock/directory', 3000, 'localhost');
-      expect(app.listen).toHaveBeenCalledWith(3000, 'localhost', expect.any(Function));
+      expect(app.listen).toHaveBeenCalledWith(3000, 'localhost');
+      server.emit('listening');
       expect(setupWatcher).toHaveBeenCalledWith('/mock/directory', server, 3000);
     });
   });

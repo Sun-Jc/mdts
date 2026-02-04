@@ -38,6 +38,14 @@ describe('cli', () => {
   let originalArgv: string[];
   const mockOpen = jest.fn();
   let mockServe: jest.Mock;
+  const mockServer = {
+    once: jest.fn((event: string, callback: () => void) => {
+      if (event === 'listening') {
+        callback();
+      }
+    }),
+    address: jest.fn(),
+  };
 
   beforeEach(() => {
     cli = new CLI();
@@ -49,6 +57,11 @@ describe('cli', () => {
 
     jest.spyOn(cli, 'requireOpen')
       .mockImplementation(() => Promise.resolve(mockOpen));
+
+    mockServe.mockImplementation((_directory: string, port: number) => {
+      mockServer.address.mockReturnValue({ port: port === 0 ? 1234 : port });
+      return mockServer;
+    });
   });
 
   afterEach(() => {
@@ -107,6 +120,17 @@ describe('cli', () => {
       .then(() => {
         expect(mockServe).toHaveBeenCalledWith(path.resolve('./my-dir'), 9000, 'localhost');
         expect(mockOpen).toHaveBeenCalledWith('http://localhost:9000/README.md');
+      });
+  });
+
+  it('should resolve auto port and open with assigned port', () => {
+    setExistsSyncResult(true);
+    process.argv = ['node', 'cli.ts', '-p', 'auto', '.'];
+
+    return cli.run()
+      .then(() => {
+        expect(mockServe).toHaveBeenCalledWith(path.resolve('.'), 0, 'localhost');
+        expect(mockOpen).toHaveBeenCalledWith('http://localhost:1234/README.md');
       });
   });
 });
