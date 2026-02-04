@@ -6,9 +6,8 @@ tags:
   - troubleshooting
   - issues
   - solutions
-  - debugging
+  - learn
 ---
-
 This guide covers common issues you might encounter when using mdts and their solutions.
 
 ## Installation & Startup Issues

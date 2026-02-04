@@ -12,9 +12,70 @@ interface FileTreeItem {
   path: string;
   type: 'directory' | 'file';
   children?: FileTreeItem[];
+  tags?: string[];
   size?: number;
   modified?: string;
 }
+
+const extractTagsFromFrontmatter = (content: string): string[] => {
+  const match = content.match(/^---\s*\r?\n([\s\S]*?)\r?\n---\s*(?:\r?\n|$)/);
+  if (!match) return [];
+
+  const frontmatter = match[1];
+  const lines = frontmatter.split(/\r?\n/);
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const tagLineMatch = line.match(/^\s*tags\s*:\s*(.*)$/i);
+    if (!tagLineMatch) continue;
+
+    const inlineValue = tagLineMatch[1].trim();
+    if (inlineValue) {
+      return normalizeTags(inlineValue);
+    }
+
+    const collected: string[] = [];
+    for (let j = i + 1; j < lines.length; j += 1) {
+      const nextLine = lines[j];
+      if (/^\s*\w[\w-]*\s*:/.test(nextLine)) break;
+      const itemMatch = nextLine.match(/^\s*-\s*(.+)$/);
+      if (itemMatch) {
+        const cleaned = cleanTag(itemMatch[1]);
+        if (cleaned) collected.push(cleaned);
+      }
+    }
+    return uniqueTags(collected);
+  }
+
+  return [];
+};
+
+const normalizeTags = (inlineValue: string): string[] => {
+  const trimmed = inlineValue.trim();
+  if (!trimmed) return [];
+
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    const inner = trimmed.slice(1, -1).trim();
+    if (!inner) return [];
+    return uniqueTags(inner.split(',').map(cleanTag));
+  }
+
+  if (trimmed.includes(',')) {
+    return uniqueTags(trimmed.split(',').map(cleanTag));
+  }
+
+  return uniqueTags([cleanTag(trimmed)]);
+};
+
+const cleanTag = (value: string): string => {
+  const trimmed = value.trim();
+  const unquoted = trimmed.replace(/^['"](.+)['"]$/, '$1');
+  return unquoted.trim();
+};
+
+const uniqueTags = (tags: string[]): string[] => {
+  return Array.from(new Set(tags.filter(Boolean)));
+};
 
 function generateFileTree(dirPath: string): FileTreeItem[] {
   try {
@@ -37,10 +98,12 @@ function generateFileTree(dirPath: string): FileTreeItem[] {
         }
       } else if (item.name.endsWith('.md') || item.name.endsWith('.markdown')) {
         const stats = fs.statSync(fullPath);
+        const tags = extractTagsFromFrontmatter(fs.readFileSync(fullPath, 'utf8'));
         tree.push({
           name: item.name,
           path: item.name, // Just use name, will be adjusted later
           type: 'file',
+          tags,
           size: stats.size,
           modified: stats.mtime.toISOString()
         });
@@ -156,6 +219,7 @@ export interface FileTreeItem {
   path: string;
   type: 'directory' | 'file';
   children?: FileTreeItem[];
+  tags?: string[];
   size?: number;
   modified?: string;
 }

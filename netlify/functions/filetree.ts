@@ -53,10 +53,12 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     const convertToFrontendFormat = (items: FileTreeItem[]): ({
       path: string;
       status: string;
+      tags?: string[];
     } | {
       [key: string]: ({
         path: string;
         status: string;
+        tags?: string[];
       } | object)[];
     })[] => {
       const converted: any[] = [];
@@ -65,7 +67,8 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
         if (item.type === 'file') {
           converted.push({
             path: item.path,
-            status: undefined
+            status: undefined,
+            tags: item.tags
           });
         } else if (item.type === 'directory' && item.children) {
           converted.push({
