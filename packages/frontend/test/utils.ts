@@ -30,6 +30,7 @@ export const createMockStore = (
     },
     content: {
       content: '',
+      lastModified: null,
       loading: false,
       error: null,
     },

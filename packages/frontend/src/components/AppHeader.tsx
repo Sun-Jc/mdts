@@ -22,21 +22,27 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     <AppBar
       position="static"
       elevation={0}
-      sx={{ bgcolor: 'background.paper', color: 'text.primary', borderBottom: '1px solid ', borderColor: 'divider' }}
+      sx={{
+        bgcolor: 'background.paper',
+        color: 'text.primary',
+        borderBottom: '1px solid ',
+        borderColor: 'divider',
+        height: 40,
+      }}
     >
-      <Toolbar>
+      <Toolbar sx={{ minHeight: 40, height: 40, px: 1, alignItems: 'center' }}>
         <Box sx={{ flexGrow: 1 }}>
           <Tooltip title="Top page">
-            <IconButton disableRipple onClick={handleFileSelectClick} color="inherit">
-              <div style={{ height: '56px', marginTop: '-8px', marginLeft: '-16px' }}>
+            <IconButton disableRipple onClick={handleFileSelectClick} color="inherit" size="small" sx={{ p: 0.5 }}>
+              <div style={{ height: '28px', marginTop: '0', marginLeft: '-8px' }}>
                 <Logo />
               </div>
             </IconButton>
           </Tooltip>
         </Box>
         <Tooltip title="Settings">
-          <IconButton sx={{ mr: 2 }} onClick={onSettingsClick} color="inherit">
-            <SettingsIcon />
+          <IconButton sx={{ mr: 1, p: 0.5 }} onClick={onSettingsClick} color="inherit" size="small">
+            <SettingsIcon sx={{ fontSize: 14, position: 'relative', top: -1 }} />
           </IconButton>
         </Tooltip>
         <Tooltip title="GitHub Repository">
@@ -45,12 +51,13 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             href="https://github.com/unhappychoice/mdts"
             target="_blank"
             rel="noopener"
-            sx={{ mr: 2 }}
+            sx={{ mr: 1, p: 0.5 }}
+            size="small"
           >
-            <GitHubIcon />
+            <GitHubIcon sx={{ fontSize: 14, position: 'relative', top: -1 }} />
           </IconButton>
         </Tooltip>
-        <Box sx={{ fontSize: '0.9rem', pt: '2px', fontFamily: 'monospace' }}>
+        <Box sx={{ fontSize: '11px', pt: '0', fontFamily: 'monospace', lineHeight: 1 }}>
           <Tooltip title="Changelog">
             <Link href="https://github.com/unhappychoice/mdts/blob/main/CHANGELOG.md" target="_blank" rel="noopener">
               v{process.env.APP_VERSION}

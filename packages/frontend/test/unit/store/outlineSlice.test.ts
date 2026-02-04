@@ -2,6 +2,7 @@ import outlineReducer, { fetchOutline } from '../../../src/store/slices/outlineS
 
 jest.mock('../../../src/api', () => ({
   fetchData: jest.fn(),
+  fetchTextWithMetadata: jest.fn(),
 }));
 
 describe('outlineSlice', () => {

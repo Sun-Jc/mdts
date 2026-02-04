@@ -80,6 +80,23 @@ describe('MarkdownContentView', () => {
     expect(screen.getByText('Test Author')).toBeInTheDocument();
   });
 
+  test('renders date-only frontmatter values as YYYY-MM-DD', () => {
+    const frontmatter = { date: new Date('2026-01-06T00:00:00.000Z') };
+    render(
+      <Provider store={store}>
+        <MarkdownContentView
+          loading={false}
+          viewMode="frontmatter"
+          content=""
+          markdownContent=""
+          frontmatter={frontmatter}
+        />
+      </Provider>
+    );
+    expect(screen.getByText('date')).toBeInTheDocument();
+    expect(screen.getByText('2026-01-06')).toBeInTheDocument();
+  });
+
   test('renders MarkdownRenderer in raw mode', () => {
     render(
       <Provider store={store}>

@@ -45,7 +45,8 @@ const getMarkdownOutline = async (filePath: string): Promise<OutlineItem[]> => {
     .then(GithubSlugger => new GithubSlugger());
 
   const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const tokens = md.parse(fileContent, {});
+  const markdownContent = stripFrontmatter(fileContent);
+  const tokens = md.parse(markdownContent, {});
   const outline: OutlineItem[] = [];
 
   for (const token of tokens) {
@@ -61,4 +62,25 @@ const getMarkdownOutline = async (filePath: string): Promise<OutlineItem[]> => {
   }
 
   return outline;
+};
+
+const stripFrontmatter = (content: string): string => {
+  const lines = content.split(/\r?\n/);
+  if (lines.length === 0) {
+    return content;
+  }
+
+  const firstLine = lines[0].replace(/^\uFEFF/, '').trim();
+  if (firstLine !== '---') {
+    return content;
+  }
+
+  for (let i = 1; i < lines.length; i += 1) {
+    const line = lines[i].trim();
+    if (line === '---' || line === '...') {
+      return lines.slice(i + 1).join('\n');
+    }
+  }
+
+  return content;
 };

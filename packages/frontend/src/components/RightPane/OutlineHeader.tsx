@@ -9,18 +9,33 @@ interface OutlineHeaderProps {
 }
 
 const OutlineHeader: React.FC<OutlineHeaderProps> = ({ isOpen, onToggle }) => {
+  const iconButtonSx = {
+    width: 24,
+    height: 24,
+    padding: 0,
+    marginTop: '-2px',
+    '& .MuiSvgIcon-root': {
+      fontSize: 18,
+    },
+  };
+
   return (
     <Box
       sx={{
         display: 'flex',
         justifyContent: 'flex-start',
-        alignItems: 'center',
-        height: '34px',
+        alignItems: 'flex-start',
+        height: '28px',
         marginBottom: 2,
         px: isOpen ? 2 : 0.5,
       }}
     >
-      <IconButton onClick={onToggle} size="small" sx={{ marginBottom: 0, marginLeft: isOpen ? '0' : '12px' }} aria-label="toggle outline">
+      <IconButton
+        onClick={onToggle}
+        size="small"
+        sx={{ ...iconButtonSx, marginBottom: 0, marginLeft: isOpen ? '0' : '12px' }}
+        aria-label="toggle outline"
+      >
         {isOpen ? <ChevronRightIcon /> : <ChevronLeftIcon />}
       </IconButton>
       {isOpen && (

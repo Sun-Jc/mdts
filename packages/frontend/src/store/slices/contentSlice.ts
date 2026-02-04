@@ -1,9 +1,10 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { fetchData } from '../../api';
+import { fetchTextWithMetadata } from '../../api';
 
 interface ContentState {
   content: string;
+  lastModified: string | null;
   loading: boolean;
   error: string | null;
   scrollPosition: number;
@@ -11,6 +12,7 @@ interface ContentState {
 
 const initialState: ContentState = {
   content: '',
+  lastModified: null,
   loading: true,
   error: null,
   scrollPosition: 0,
@@ -20,8 +22,8 @@ export const fetchContent = createAsyncThunk(
   'content/fetchContent',
   async (path: string | null) => {
     const url = path ? `/api/markdown/${path}` : '/api/markdown/mdts-welcome-markdown.md';
-    const data = await fetchData<string>(url, 'text');
-    return data || '';
+    const { text, lastModified } = await fetchTextWithMetadata(url);
+    return { content: text || '', lastModified };
   }
 );
 
@@ -43,7 +45,8 @@ const contentSlice = createSlice({
       })
       .addCase(fetchContent.fulfilled, (state, action) => {
         state.loading = false;
-        state.content = action.payload;
+        state.content = action.payload.content;
+        state.lastModified = action.payload.lastModified;
       })
       .addCase(fetchContent.rejected, (state, action) => {
         state.loading = false;

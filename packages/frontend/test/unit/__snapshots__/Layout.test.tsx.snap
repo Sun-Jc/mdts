@@ -177,11 +177,6 @@ exports[`Layout renders correctly 1`] = `
           <div
             class="MuiBox-root css-1g3qtqm"
           >
-            <h6
-              class="MuiTypography-root MuiTypography-h6 MuiTypography-gutterBottom css-1b6r7r0-MuiTypography-root"
-            >
-              File Tree
-            </h6>
             <button
               aria-label="expand all"
               class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall css-155wbr6-MuiButtonBase-root-MuiIconButton-root"

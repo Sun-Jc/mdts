@@ -1,12 +1,13 @@
 import contentReducer, { fetchContent, setScrollPosition } from '../../../src/store/slices/contentSlice';
 
 jest.mock('../../../src/api', () => ({
-  fetchData: jest.fn(),
+  fetchTextWithMetadata: jest.fn(),
 }));
 
 describe('contentSlice', () => {
   const initialState = {
     content: '',
+    lastModified: null,
     loading: true,
     error: null,
     scrollPosition: 0,
@@ -46,9 +47,13 @@ describe('contentSlice', () => {
       content: 'old content',
       loading: true,
     };
-    expect(contentReducer(previousState, fetchContent.fulfilled('new content', 'requestId', null))).toEqual({
+    expect(contentReducer(previousState, fetchContent.fulfilled({
+      content: 'new content',
+      lastModified: 'Wed, 01 Jan 2025 12:00:00 GMT',
+    }, 'requestId', null))).toEqual({
       ...initialState,
       content: 'new content',
+      lastModified: 'Wed, 01 Jan 2025 12:00:00 GMT',
       loading: false,
     });
   });

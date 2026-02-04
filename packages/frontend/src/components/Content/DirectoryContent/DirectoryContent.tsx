@@ -36,7 +36,7 @@ const DirectoryContent: React.FC<DirectoryContentProps> = ({ onFileSelect, onDir
     <Box
       sx={{
         width: '100%',
-        minHeight: 'calc(100vh - 64px)',
+        minHeight: '100%',
         m: 0,
         p: 4,
         bgcolor: 'background.paper',

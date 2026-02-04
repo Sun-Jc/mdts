@@ -23,6 +23,7 @@ jest.mock('@mui/x-tree-view', () => ({
 // Mock the useFileTree hook
 jest.mock('../../src/api', () => ({
   fetchData: jest.fn(() => Promise.resolve([])),
+  fetchTextWithMetadata: jest.fn(() => Promise.resolve({ text: '', lastModified: null })),
 }));
 
 

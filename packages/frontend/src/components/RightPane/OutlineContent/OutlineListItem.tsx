@@ -13,8 +13,17 @@ export const OutlineListItem: React.FC<OutlineListItemProps> = ({ item, onItemCl
   }, [onItemClick, item.id]);
 
   return (
-    <ListItem button key={item.id} sx={{ pl: item.level * 2 }} onClick={handleClick}>
-      <ListItemText primary={item.content} sx={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }} />
+    <ListItem button key={item.id} sx={{ pl: item.level * 2, alignItems: 'flex-start' }} onClick={handleClick}>
+      <ListItemText
+        primary={item.content}
+        sx={{
+          minWidth: 0,
+          overflow: 'visible',
+          whiteSpace: 'normal',
+          wordBreak: 'break-word',
+          overflowWrap: 'anywhere',
+        }}
+      />
     </ListItem>
   );
 };

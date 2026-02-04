@@ -1,8 +1,8 @@
-import { Box } from '@mui/material';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import React, { useCallback, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import AppHeader from './components/AppHeader';
+import SettingsIcon from '@mui/icons-material/Settings';
 import Content from './components/Content/Content';
 import FileTree from './components/LeftPane/FileTree';
 import Outline from './components/RightPane/Outline';
@@ -51,10 +51,6 @@ const Layout: React.FC<LayoutProps> = ({ onSettingsClick }) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <AppHeader
-        handleFileSelect={handleFileSelect}
-        onSettingsClick={onSettingsClick}
-      />
       <Box
         component="main"
         sx={{ flexGrow: 1, display: 'flex', overflowY: 'hidden', height: '100%' }}
@@ -76,6 +72,13 @@ const Layout: React.FC<LayoutProps> = ({ onSettingsClick }) => {
           isOpen={outlineOpen}
           onToggle={handleToggleOutline}
         />
+      </Box>
+      <Box sx={{ position: 'fixed', left: 8, bottom: 8, zIndex: 1100 }}>
+        <Tooltip title="Settings">
+          <IconButton onClick={onSettingsClick} color="inherit" size="small" sx={{ p: 0.75 }}>
+            <SettingsIcon sx={{ fontSize: 18 }} />
+          </IconButton>
+        </Tooltip>
       </Box>
     </Box>
   );

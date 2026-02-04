@@ -12,35 +12,65 @@ import MarkdownContentTabs from './MarkdownContentTabs';
 import MarkdownContentView from './MarkdownContentView';
 
 interface MarkdownContentProps {
-  scrollToId: string | null;
   onDirectorySelect?: (directoryPath: string) => void;
 }
 
-const MarkdownContent: React.FC<MarkdownContentProps> = ({ scrollToId, onDirectorySelect }) => {
+const parseDateValue = (value: unknown): Date | null => {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+  if (typeof value === 'string' || typeof value === 'number') {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  return null;
+};
+
+const formatDateValue = (value: unknown, includeTime: boolean): string | null => {
+  if (value === null || value === undefined) return null;
+  const parsed = parseDateValue(value);
+  if (parsed) {
+    if (includeTime) {
+      return new Intl.DateTimeFormat(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(parsed);
+    }
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+    }).format(parsed);
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+  return null;
+};
+
+const MarkdownContent: React.FC<MarkdownContentProps> = ({ onDirectorySelect }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const { currentPath } = useSelector((state: RootState) => state.history);
   const { contentMode } = useSelector((state: RootState) => state.appSetting);
-  const { content, loading: contentLoading, error } = useSelector((state: RootState) => state.content);
+  const { content, loading: contentLoading, error, lastModified } = useSelector((state: RootState) => state.content);
   const { loading: fileTreeLoading } = useSelector((state: RootState) => state.fileTree);
   const { fontFamily } = useSelector((state: RootState) => state.config);
 
   const { frontmatter, markdownContent } = useFrontmatter(content);
   const viewMode = useViewMode();
   const loading = contentLoading || fileTreeLoading;
+  const frontmatterDate = formatDateValue(frontmatter.date ?? frontmatter.Date, false);
+  const updateTime = formatDateValue(lastModified, true);
+  const hasMetadata = Boolean(frontmatterDate || updateTime);
 
   useEffect(() => {
     dispatch(fetchContent(currentPath));
   }, [dispatch, currentPath]);
-
-  useEffect(() => {
-    if (scrollToId) {
-      const element = document.getElementById(scrollToId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-  }, [scrollToId, content]);
 
   const displayFileName = frontmatter.title
     ? String(frontmatter.title)
@@ -60,7 +90,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ scrollToId, onDirecto
     <Box
       sx={{
         width: '100%',
-        minHeight: 'calc(100vh - 64px)',
+        minHeight: '100%',
         m: 0,
         p: 4,
         bgcolor: 'background.paper',
@@ -74,12 +104,26 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ scrollToId, onDirecto
       }}
     >
       <BreadCrumb onDirectorySelect={onDirectorySelect} />
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-        <ArticleOutlined sx={{ mr: 2 }} fontSize="large" />
-        <Typography variant="h4" gutterBottom sx={{ mb: 0 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <ArticleOutlined sx={{ mr: 1, fontSize: 22 }} />
+        <Typography
+          variant="subtitle1"
+          gutterBottom
+          sx={{ mb: 0, fontSize: '1.4rem', fontWeight: 600 }}
+        >
           {displayFileName}
         </Typography>
       </Box>
+      {hasMetadata && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 2, color: 'text.secondary' }}>
+          {updateTime && (
+            <Typography variant="body2">Update: {updateTime}</Typography>
+          )}
+          {frontmatterDate && (
+            <Typography variant="body2">Date: {frontmatterDate}</Typography>
+          )}
+        </Box>
+      )}
       {frontmatter.tags && Array.isArray(frontmatter.tags) && frontmatter.tags.length > 0 && (
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
           {frontmatter.tags.map((tag) => (

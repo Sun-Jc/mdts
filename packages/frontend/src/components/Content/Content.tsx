@@ -34,12 +34,28 @@ const Content: React.FC<ContentProps> = ({ onFileSelect, onDirectorySelect, scro
     }
   }, [loading, scrollPosition]);
 
+  useEffect(() => {
+    if (!scrollToId || loading || !scrollableRef.current) return;
+
+    const target = document.getElementById(scrollToId);
+    if (!target) return;
+
+    const container = scrollableRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const nextTop = targetRect.top - containerRect.top + container.scrollTop;
+
+    container.scrollTo({ top: nextTop, behavior: 'smooth' });
+  }, [scrollToId, loading, currentPath]);
+
   return (
     <Box
       sx={{
         display: 'flex',
-        height: 'calc(100vh - 64px)',
+        height: '100%',
         flexGrow: 1,
+        minHeight: 0,
+        minWidth: 0,
         justifyContent: 'center',
         ...(contentMode === 'full' && { bgcolor: 'background.paper' }),
       }}
@@ -55,7 +71,7 @@ const Content: React.FC<ContentProps> = ({ onFileSelect, onDirectorySelect, scro
         {currentPath && isDirectory ? (
           <DirectoryContent onFileSelect={onFileSelect} onDirectorySelect={onDirectorySelect} />
         ) : (
-          <MarkdownContent onDirectorySelect={onDirectorySelect} scrollToId={scrollToId} />
+          <MarkdownContent onDirectorySelect={onDirectorySelect} />
         )}
       </Box>
     </Box>

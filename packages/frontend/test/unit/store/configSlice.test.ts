@@ -4,6 +4,7 @@ import * as api from '../../../src/api'; // Import the actual api module
 
 jest.mock('../../../src/api', () => ({
   fetchData: jest.fn(),
+  fetchTextWithMetadata: jest.fn(),
 }));
 
 describe('configSlice', () => {
