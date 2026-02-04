@@ -13,7 +13,6 @@ describe('FileTreeHeader', () => {
       />
     );
     expect(asFragment()).toMatchSnapshot();
-    expect(screen.getByText('File Tree')).toBeInTheDocument();
     expect(screen.getByLabelText('expand all')).toBeInTheDocument();
     expect(screen.getByLabelText('collapse all')).toBeInTheDocument();
   });
@@ -28,7 +27,6 @@ describe('FileTreeHeader', () => {
       />
     );
     expect(asFragment()).toMatchSnapshot();
-    expect(screen.queryByText('File Tree')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('expand all')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('collapse all')).not.toBeInTheDocument();
   });

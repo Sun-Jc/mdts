@@ -13,6 +13,7 @@ import { fetchData } from '../../../src/api';
 // Mock fetchData
 jest.mock('../../../src/api', () => ({
   fetchData: jest.fn(),
+  fetchTextWithMetadata: jest.fn(),
 }));
 
 // Mock localStorage

@@ -10,8 +10,10 @@ interface FileTreeContentProps {
   loading: boolean;
   error: string | null;
   expandedNodes: string[];
+  pinnedPaths: string[];
   onFileSelect: (path: string) => void;
   onExpandedItemsChange: (event: React.SyntheticEvent, itemIds: string[]) => void;
+  onTogglePin: (path: string) => void;
 }
 
 const FileTreeContent: React.FC<FileTreeContentProps> = ({
@@ -19,8 +21,10 @@ const FileTreeContent: React.FC<FileTreeContentProps> = ({
   loading,
   error,
   expandedNodes,
+  pinnedPaths,
   onFileSelect,
   onExpandedItemsChange,
+  onTogglePin,
 }) => {
   const theme = useTheme();
 
@@ -43,8 +47,10 @@ const FileTreeContent: React.FC<FileTreeContentProps> = ({
     <FileTreeView
       filteredFileTree={filteredFileTree}
       expandedNodes={expandedNodes}
+      pinnedPaths={pinnedPaths}
       onFileSelect={onFileSelect}
       onExpandedItemsChange={onExpandedItemsChange}
+      onTogglePin={onTogglePin}
       getStatusColor={getStatusColor}
     />
   );

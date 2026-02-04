@@ -17,10 +17,28 @@ export const DirectoryTreeItemView: React.FC<DirectoryTreeItemViewProps> = ({
   <TreeItem
     key={currentPath}
     itemId={currentPath}
+    sx={{
+      '& .MuiTreeItem-content': {
+        alignItems: 'flex-start',
+      },
+      '& .MuiTreeItem-label': {
+        whiteSpace: 'normal',
+      },
+    }}
     label={
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <FolderOutlined sx={{ mr: 1, fontSize: 'small' }} color="primary" />
-        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
+      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+        <FolderOutlined sx={{ mr: 1, mt: 0.2, fontSize: 'small' }} color="primary" />
+        <Typography
+          variant="body2"
+          sx={{
+            fontSize: '0.875rem',
+            minWidth: 0,
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
+            overflowWrap: 'anywhere',
+            lineHeight: 1.3,
+          }}
+        >
           {directoryName}
         </Typography>
       </Box>
