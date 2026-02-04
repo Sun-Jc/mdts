@@ -41,8 +41,7 @@ const DirectoryContent: React.FC<DirectoryContentProps> = ({ onFileSelect, onDir
         p: 4,
         bgcolor: 'background.paper',
         ...(contentMode === 'compact' && {
-          width: '800px',
-          margin: '0 auto',
+          px: { xs: 3, md: 5 },
         })
       }}
     >

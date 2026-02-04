@@ -56,7 +56,6 @@ const Content: React.FC<ContentProps> = ({ onFileSelect, onDirectorySelect, scro
         flexGrow: 1,
         minHeight: 0,
         minWidth: 0,
-        justifyContent: 'center',
         ...(contentMode === 'full' && { bgcolor: 'background.paper' }),
       }}
     >

@@ -95,11 +95,7 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ onDirectorySelect }) 
         p: 4,
         bgcolor: 'background.paper',
         ...(contentMode === 'compact' && {
-          width: '800px',
-          margin: '0 auto',
-          borderRight: '1px solid',
-          borderLeft: '1px solid',
-          borderColor: 'divider',
+          px: { xs: 3, md: 5 },
         })
       }}
     >
