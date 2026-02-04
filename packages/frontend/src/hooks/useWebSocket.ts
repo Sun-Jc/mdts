@@ -1,21 +1,32 @@
 import { useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { fetchContent } from '../store/slices/contentSlice';
 import { fetchFileTree } from '../store/slices/fileTreeSlice';
 import { fetchOutline } from '../store/slices/outlineSlice';
-import { AppDispatch } from '../store/store';
+import { AppDispatch, RootState } from '../store/store';
 
 type Event = { type: 'reload-content' } | { type: 'reload-tree' };
 
 export const useWebSocket = (currentPath: string | null): void => {
   const dispatch = useDispatch<AppDispatch>();
+  const { sortOption, sortOrder } = useSelector((state: RootState) => state.fileTree);
   const wsRef = useRef<WebSocket | null>(null);
   const currentPathRef = useRef<string | null>(currentPath);
+  const sortOptionRef = useRef(sortOption);
+  const sortOrderRef = useRef(sortOrder);
 
   // Update the ref whenever currentPath changes
   useEffect(() => {
     currentPathRef.current = currentPath;
   }, [currentPath]);
+
+  useEffect(() => {
+    sortOptionRef.current = sortOption;
+  }, [sortOption]);
+
+  useEffect(() => {
+    sortOrderRef.current = sortOrder;
+  }, [sortOrder]);
 
   useEffect(() => {
     const ws = new WebSocket(
@@ -39,7 +50,7 @@ export const useWebSocket = (currentPath: string | null): void => {
         dispatch(fetchContent(currentPathRef.current));
         dispatch(fetchOutline(currentPathRef.current));
       } else if (message.type === 'reload-tree') {
-        dispatch(fetchFileTree());
+        dispatch(fetchFileTree({ sortOption: sortOptionRef.current, sortOrder: sortOrderRef.current }));
       }
     };
 
