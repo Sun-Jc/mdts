@@ -121,3 +121,12 @@ scripts/*.js
 .DS_Store
 .envrc
 .claude
+
+# Annotation files
+*.ant.md
+*.annotation.json
+
+# Agent and build directories
+.agent/
+.sisyphus/
+dist/
