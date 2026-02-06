@@ -8,13 +8,15 @@ interface AppSettingState {
   contentMode: ContentMode;
   fileTreeOpen: boolean;
   outlineOpen: boolean;
+  showAnnotations: boolean;
 }
 
 const initialState: AppSettingState = {
   darkMode: 'auto',
   contentMode: 'compact',
   fileTreeOpen: true,
-  outlineOpen: true
+  outlineOpen: true,
+  showAnnotations: true
 };
 
 const appSettingSlice = createSlice({
@@ -34,9 +36,12 @@ const appSettingSlice = createSlice({
     toggleOutline: (state) => {
       state.outlineOpen = !state.outlineOpen;
     },
+    toggleAnnotations: (state) => {
+      state.showAnnotations = !state.showAnnotations;
+    },
   },
 });
 
-export const { saveAppSetting, toggleFileTree, toggleOutline } = appSettingSlice.actions;
+export const { saveAppSetting, toggleFileTree, toggleOutline, toggleAnnotations } = appSettingSlice.actions;
 
 export default appSettingSlice.reducer;

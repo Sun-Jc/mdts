@@ -5,6 +5,7 @@ import path from 'path';
 import { WebSocket, WebSocketServer } from 'ws';
 import { logger } from '../utils/logger';
 import { EXCLUDED_DIRECTORIES } from '../constants';
+import { generateAndWriteFeedback } from './annotationFeedback';
 
 let contentWatcher: FSWatcher | null = null;
 let currentWatchedFile: string | null = null;
@@ -55,7 +56,7 @@ const setupDirectoryWatcher = (directory: string, wss: WebSocketServer): FSWatch
         }
 
         if (stats) {
-          return !stats.isDirectory() && !watchedFilePath.endsWith('.md') && !watchedFilePath.endsWith('.markdown');
+          return !stats.isDirectory() && !watchedFilePath.endsWith('.md') && !watchedFilePath.endsWith('.markdown') && !watchedFilePath.endsWith('.annotation.json');
         } else {
           // If stats is undefined, it's a directory that hasn't been scanned yet.
           // We want to traverse directories, so don't ignore.
@@ -77,6 +78,18 @@ const setupDirectoryWatcher = (directory: string, wss: WebSocketServer): FSWatch
       wss.clients.forEach((client) => {
         client.send(JSON.stringify({ type: 'reload-tree' }));
       });
+    });
+
+    watcher.on('change', (changedFilePath) => {
+      if (changedFilePath.endsWith('.annotation.json')) {
+        const originalPath = changedFilePath.replace('.annotation.json', '');
+        logger.log('Annotations', `📝 Annotation changed: ${changedFilePath}, generating feedback...`);
+        try {
+          generateAndWriteFeedback(originalPath, changedFilePath);
+        } catch (err) {
+          logger.error('Error generating feedback:', err);
+        }
+      }
     });
 
     watcher.on('error', (error) => {

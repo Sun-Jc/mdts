@@ -6,6 +6,7 @@ import appSettingReducer, { saveAppSetting } from './slices/appSettingSlice';
 import historyReducer from './slices/historySlice';
 import configReducer from './slices/configSlice';
 import plantUMLReducer from './slices/plantUMLSlice';
+import annotationReducer from './slices/annotationSlice';
 
 // Helper to load state from localStorage
 const loadState = () => {
@@ -30,6 +31,14 @@ listenerMiddleware.startListening({
     const applyTheme = (mode: 'dark' | 'light') => {
       document.body.setAttribute('data-theme', mode);
     };
+
+    // Persist to localStorage
+    try {
+      const state = (listenerApi.getState() as { appSetting: unknown }).appSetting;
+      localStorage.setItem('appSetting', JSON.stringify(state));
+    } catch (err) {
+      console.error('Could not save state to localStorage', err);
+    }
 
     if (darkMode === 'auto') {
       const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)');
@@ -57,6 +66,7 @@ export const store = configureStore({
     history: historyReducer,
     config: configReducer,
     plantUML: plantUMLReducer,
+    annotations: annotationReducer,
   },
   preloadedState: loadState(),
   middleware: (getDefaultMiddleware) =>

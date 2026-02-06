@@ -3,10 +3,12 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import SettingsIcon from '@mui/icons-material/Settings';
+import CommentIcon from '@mui/icons-material/Comment';
+import CommentsDisabledIcon from '@mui/icons-material/CommentsDisabled';
 import Content from './components/Content/Content';
 import FileTree from './components/LeftPane/FileTree';
 import Outline from './components/RightPane/Outline';
-import { toggleFileTree, toggleOutline, } from './store/slices/appSettingSlice';
+import { toggleFileTree, toggleOutline, toggleAnnotations } from './store/slices/appSettingSlice';
 import { RootState } from './store/store';
 
 interface LayoutProps {
@@ -16,7 +18,7 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ onSettingsClick }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { fileTreeOpen, outlineOpen } = useSelector((state: RootState) => state.appSetting);
+  const { fileTreeOpen, outlineOpen, showAnnotations } = useSelector((state: RootState) => state.appSetting);
   const { currentPath, isDirectory } = useSelector((state: RootState) => state.history);
   const { fontFamily, fontFamilyMonospace } = useSelector((state: RootState) => state.config);
   const [scrollToId, setScrollToId] = useState<string | null>(null);
@@ -49,6 +51,10 @@ const Layout: React.FC<LayoutProps> = ({ onSettingsClick }) => {
     dispatch(toggleOutline());
   }, [dispatch, toggleOutline]);
 
+  const handleToggleAnnotations = useCallback(() => {
+    dispatch(toggleAnnotations());
+  }, [dispatch]);
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <Box
@@ -73,8 +79,17 @@ const Layout: React.FC<LayoutProps> = ({ onSettingsClick }) => {
           onToggle={handleToggleOutline}
         />
       </Box>
-      <Box sx={{ position: 'fixed', left: 8, bottom: 8, zIndex: 1100 }}>
-        <Tooltip title="Settings">
+      <Box sx={{ position: 'fixed', left: 8, bottom: 8, zIndex: 1100, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <Tooltip title={`${showAnnotations ? 'Hide' : 'Show'} Annotations`} placement="right">
+          <IconButton onClick={handleToggleAnnotations} color="inherit" size="small" sx={{ p: 0.75 }}>
+            {showAnnotations ? (
+              <CommentIcon sx={{ fontSize: 18 }} />
+            ) : (
+              <CommentsDisabledIcon sx={{ fontSize: 18 }} />
+            )}
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Settings" placement="right">
           <IconButton onClick={onSettingsClick} color="inherit" size="small" sx={{ p: 0.75 }}>
             <SettingsIcon sx={{ fontSize: 18 }} />
           </IconButton>

@@ -1,4 +1,4 @@
-type LogTag = 'CLI' | 'Server' | 'Livereload' | 'Announcement';
+type LogTag = 'CLI' | 'Server' | 'Livereload' | 'Announcement' | 'Annotations' | 'Feedback';
 
 class Logger {
   private silent = false;

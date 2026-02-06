@@ -9,6 +9,7 @@ import { setupWatcher } from './watcher';
 import { plantumlRouter } from './routes/plantuml';
 import { searchRouter } from './routes/search';
 import { frontmatterRouter } from './routes/frontmatter';
+import { annotationsRouter } from './routes/annotations';
 
 const getServerPort = (server: import('http').Server, fallbackPort: number): number => {
   const address = server.address();
@@ -50,6 +51,7 @@ export const createApp = (
   app.use('/api/plantuml', plantumlRouter());
   app.use('/api/search', searchRouter(directory));
   app.use('/api/frontmatter', frontmatterRouter(directory));
+  app.use('/api/annotations', annotationsRouter(directory));
   app.get('/api/config', (req, res) => {
     res.json(getConfig());
   });

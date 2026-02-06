@@ -1,9 +1,10 @@
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import SettingsDialog from './components/SettingsDialog/SettingsDialog';
 import SearchDialog from './components/SearchDialog/SearchDialog';
+import { AnnotationEditor } from './components/AnnotationEditor';
 import { useTheme } from './hooks/useTheme';
 import { useWebSocket } from './hooks/useWebSocket';
 import Layout from './Layout';
@@ -99,16 +100,26 @@ const App: React.FC = () => {
     }
   }, [enableFullTextSearch]);
 
+  const isAnnotationRoute = location.pathname.startsWith('/annotate/');
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Layout onSettingsClick={handleSettingsClick} />
-      <SettingsDialog open={isSettingsDialogOpen} onClose={handleCloseSettingsDialog} />
-      <SearchDialog
-        open={isSearchDialogOpen}
-        onClose={handleCloseSearchDialog}
-        onFileSelect={handleSearchResultSelect}
-      />
+      {isAnnotationRoute ? (
+        <Routes>
+          <Route path="/annotate/*" element={<AnnotationEditor />} />
+        </Routes>
+      ) : (
+        <>
+          <Layout onSettingsClick={handleSettingsClick} />
+          <SettingsDialog open={isSettingsDialogOpen} onClose={handleCloseSettingsDialog} />
+          <SearchDialog
+            open={isSearchDialogOpen}
+            onClose={handleCloseSearchDialog}
+            onFileSelect={handleSearchResultSelect}
+          />
+        </>
+      )}
     </ThemeProvider>
   );
 };

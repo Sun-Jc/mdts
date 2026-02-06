@@ -17,6 +17,7 @@ import { updateFrontmatterTags } from '../../../api';
 import { fetchContent } from '../../../store/slices/contentSlice';
 import { fetchFileTree, FileTreeItem } from '../../../store/slices/fileTreeSlice';
 import { AppDispatch, RootState } from '../../../store/store';
+import type { AnnotationItem } from '../../../types/annotations';
 import MarkdownRenderer from './MarkdownRenderer/MarkdownRenderer';
 
 interface MarkdownContentViewProps {
@@ -25,6 +26,8 @@ interface MarkdownContentViewProps {
   content: string | null;
   markdownContent: string;
   frontmatter: Record<string, unknown>;
+  annotations?: AnnotationItem[];
+  showBubbles?: boolean;
 }
 
 const formatFrontmatterValue = (value: unknown): string => {
@@ -69,7 +72,7 @@ const normalizeTags = (tags: string[]): string[] => {
 };
 
 const MarkdownContentView: React.FC<MarkdownContentViewProps> = (
-  { loading, viewMode, markdownContent, frontmatter, content }
+  { loading, viewMode, markdownContent, frontmatter, content, annotations = [], showBubbles = true }
 ) => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentPath } = useSelector((state: RootState) => state.history);
@@ -149,7 +152,7 @@ const MarkdownContentView: React.FC<MarkdownContentViewProps> = (
 
   switch (viewMode) {
     case 'preview':
-      return <MarkdownRenderer content={markdownContent} selectedFilePath={currentPath} />;
+      return <MarkdownRenderer content={markdownContent} selectedFilePath={currentPath} annotations={annotations} rawContent={content || ''} showBubbles={showBubbles} />;
     case 'frontmatter': {
       const frontmatterEntries = Object.entries(frontmatter)
         .filter(([key]) => key.toLowerCase() !== 'tags');

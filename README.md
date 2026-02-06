@@ -20,12 +20,11 @@
 
 ## 🔧 Features
 
-- ⚡ **Instant Markdown Preview** – Run and view in seconds  
+- ⚡ **Instant Markdown Preview** – Run and view in seconds
 - 🌐 **Web UI** – Clean, tree-based browser interface with three-panel layout
-- 🔄 **Live Reload** – Automatically refreshes on file changes  
+- 🔄 **Live Reload** – Automatically refreshes on file changes
 - 🧘 **Zero Setup** – No config, no install, no nonsense
 - 🎨 **Custom Themes** – 20+ beautiful application themes and syntax highlighting options
-
 
 ## 🚀 Quick Start
 
@@ -57,11 +56,11 @@ excluded directories like `.git` and `.vscode`.
 
 ## 💡 Use Cases
 
-- Reviewing AI-generated docs  
-- Quickly checking README or note folders  
-- Lightweight local Markdown wiki  
+- Reviewing AI-generated docs
+- Quickly checking README or note folders
+- Lightweight local Markdown wiki
 
-See [detailed use cases](docs/usecases.md) for more examples and workflows.  
+See [detailed use cases](docs/usecases.md) for more examples and workflows.
 
 ## 📦 Requirements
 
@@ -74,23 +73,25 @@ See [detailed use cases](docs/usecases.md) for more examples and workflows.
 npx mdts <directory> --host 0.0.0.0 --port 3000 --silent
 ```
 
-| Option              | Description                           | Example |
-| ------------------- | ------------------------------------- |---------|
-| `<directory>`       | Directory to serve (default .)       | ./docs  |
-| `--host`, `-H`      | Host to listen on (default localhost) | 0.0.0.0 |
-| `--port`, `-p`      | Port to serve on (default 8521, use `auto` or `0`) | 8000    |
-| `--silent`, `-s`    | Suppress server logs (default false) |         |
-| `--version`, `-V`   | Output version number                 |         |
-| `--help`, `-h`      | Display help for command              |         |
+| Option            | Description                                        | Example |
+| ----------------- | -------------------------------------------------- | ------- |
+| `<directory>`     | Directory to serve (default .)                     | ./docs  |
+| `--host`, `-H`    | Host to listen on (default localhost)              | 0.0.0.0 |
+| `--port`, `-p`    | Port to serve on (default 8521, use `auto` or `0`) | 8000    |
+| `--silent`, `-s`  | Suppress server logs (default false)               |         |
+| `--version`, `-V` | Output version number                              |         |
+| `--help`, `-h`    | Display help for command                           |         |
 
 ## 📚 Documentation
 
 ### 🔗 [Live Demo](https://mdts-unhappychoice.netlify.app)
+
 Experience mdts in action with real examples and interactive features.
 
 ### 📖 Documentation
+
 - [Use Cases](docs/usecases.md)
-- [Markdown Features](docs/markdown_features.md)  
+- [Markdown Features](docs/markdown_features.md)
 - [Frontend Features](docs/frontend_features.md)
 - [Advanced Configuration](docs/configuration.md)
 - [API Reference](docs/api.md)

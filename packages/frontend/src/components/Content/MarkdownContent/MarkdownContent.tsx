@@ -1,11 +1,13 @@
-import { ArticleOutlined } from '@mui/icons-material';
-import { Box, Chip, Typography } from '@mui/material';
-import React, { useEffect } from 'react';
+import { ArticleOutlined, EditNote } from '@mui/icons-material';
+import { Box, Chip, Typography, Button } from '@mui/material';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { useFrontmatter } from '../../../hooks/useFrontmatter';
 import { useViewMode } from '../../../hooks/useViewMode';
 import { fetchContent } from '../../../store/slices/contentSlice';
 import { AppDispatch, RootState } from '../../../store/store';
+import type { AnnotationItem, AnnotationFile } from '../../../types/annotations';
 import ErrorView from '../../ErrorView';
 import BreadCrumb from '../BreadCrumb';
 import MarkdownContentTabs from './MarkdownContentTabs';
@@ -56,10 +58,12 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ onDirectorySelect }) 
   const dispatch = useDispatch<AppDispatch>();
 
   const { currentPath } = useSelector((state: RootState) => state.history);
-  const { contentMode } = useSelector((state: RootState) => state.appSetting);
+  const { contentMode, showAnnotations } = useSelector((state: RootState) => state.appSetting);
   const { content, loading: contentLoading, error, lastModified } = useSelector((state: RootState) => state.content);
   const { loading: fileTreeLoading } = useSelector((state: RootState) => state.fileTree);
   const { fontFamily } = useSelector((state: RootState) => state.config);
+
+  const [initialAnnotations, setInitialAnnotations] = useState<AnnotationItem[]>([]);
 
   const { frontmatter, markdownContent } = useFrontmatter(content);
   const viewMode = useViewMode();
@@ -68,9 +72,35 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ onDirectorySelect }) 
   const updateTime = formatDateValue(lastModified, true);
   const hasMetadata = Boolean(frontmatterDate || updateTime);
 
+  const isAnnotatedFile = currentPath?.endsWith('.ant.md') ?? false;
+  const canHaveAnnotations = !isAnnotatedFile && currentPath?.endsWith('.md');
+
   useEffect(() => {
     dispatch(fetchContent(currentPath));
   }, [dispatch, currentPath]);
+
+  useEffect(() => {
+    if (!currentPath || !canHaveAnnotations) {
+      setInitialAnnotations([]);
+      return;
+    }
+
+    const loadAnnotations = async () => {
+      try {
+        const response = await fetch(`/api/annotations/${encodeURIComponent(currentPath)}`);
+        if (response.ok) {
+          const data: AnnotationFile = await response.json();
+          setInitialAnnotations(data.annotations || []);
+        } else {
+          setInitialAnnotations([]);
+        }
+      } catch {
+        setInitialAnnotations([]);
+      }
+    };
+
+    loadAnnotations();
+  }, [currentPath, canHaveAnnotations]);
 
   const displayFileName = frontmatter.title
     ? String(frontmatter.title)
@@ -81,6 +111,12 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ onDirectorySelect }) 
         : '🎉 Welcome to mdts!';
 
   const hasFrontmatter = Object.keys(frontmatter).length > 0;
+
+  const handleAnnotate = useCallback(() => {
+    if (currentPath) {
+      window.open(`/annotate/${currentPath}`, '_blank');
+    }
+  }, [currentPath]);
 
   if (error) {
     return <ErrorView error={error} />;
@@ -105,10 +141,15 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ onDirectorySelect }) 
         <Typography
           variant="subtitle1"
           gutterBottom
-          sx={{ mb: 0, fontSize: '1.4rem', fontWeight: 600 }}
+          sx={{ mb: 0, fontSize: '1.4rem', fontWeight: 600, flex: 1 }}
         >
           {displayFileName}
         </Typography>
+        {canHaveAnnotations && currentPath && (
+          <Button size="small" startIcon={<EditNote />} onClick={handleAnnotate}>
+            Annotate
+          </Button>
+        )}
       </Box>
       {hasMetadata && (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 2, color: 'text.secondary' }}>
@@ -142,6 +183,8 @@ const MarkdownContent: React.FC<MarkdownContentProps> = ({ onDirectorySelect }) 
           content={content}
           frontmatter={frontmatter}
           markdownContent={markdownContent}
+          annotations={initialAnnotations}
+          showBubbles={showAnnotations}
         />
       </Box>
     </Box>
